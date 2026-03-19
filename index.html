@@ -9,6 +9,33 @@
 <meta name="apple-mobile-web-app-title" content="Loan Tracker">
 <meta name="theme-color" content="#0d0d10" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<link rel="apple-touch-icon" id="apple-touch-icon" sizes="180x180" href="">
+<script>
+(function(){
+  var c=document.createElement('canvas');
+  c.width=180;c.height=180;
+  var ctx=c.getContext('2d');
+  var r=36;
+  ctx.beginPath();
+  ctx.moveTo(r,0);ctx.lineTo(180-r,0);ctx.quadraticCurveTo(180,0,180,r);
+  ctx.lineTo(180,180-r);ctx.quadraticCurveTo(180,180,180-r,180);
+  ctx.lineTo(r,180);ctx.quadraticCurveTo(0,180,0,180-r);
+  ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);
+  ctx.closePath();
+  var g=ctx.createLinearGradient(0,0,180,180);
+  g.addColorStop(0,'#1e3a8a');g.addColorStop(1,'#1d4ed8');
+  ctx.fillStyle=g;ctx.fill();
+  ctx.fillStyle='#ffffff';
+  ctx.font='bold 96px -apple-system,Arial,sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('₹',90,95);
+  var dataURL=c.toDataURL('image/png');
+  document.getElementById('apple-touch-icon').href=dataURL;
+  var fav=document.createElement('link');
+  fav.rel='icon';fav.type='image/png';fav.href=dataURL;
+  document.head.appendChild(fav);
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
@@ -45,7 +72,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .fg{margin-bottom:13px}
 .fl{font-size:0.68rem;font-weight:700;color:var(--text3);letter-spacing:0;margin-bottom:5px;display:block}
 .fl span{font-weight:400;letter-spacing:0;color:var(--text3);font-size:0.86rem}
-.fi{width:100%;max-width:100%;font-size:1rem !important;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);font-family:'Inter',sans-serif;font-weight:500;background:var(--surface2);color:var(--text1);outline:none;-webkit-appearance:none;transition:border-color 150ms,box-shadow 150ms;box-sizing:border-box}
+.fi{width:100%;max-width:100%;font-size:1rem;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);font-family:'Inter',sans-serif;font-weight:500;background:var(--surface2);color:var(--text1);outline:none;-webkit-appearance:none;transition:border-color 150ms,box-shadow 150ms;box-sizing:border-box}
 .fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,0.12);background:var(--surface)}
 .fi::placeholder{color:var(--text3)}
 .fi-sel{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a4a60' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;cursor:pointer}
@@ -63,11 +90,16 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .yr-table-wrap{margin-top:10px}
 .yr-toggle{display:flex;align-items:center;justify-content:center;gap:4px;background:none;border:none;color:var(--blue);font-size:0.72rem;font-weight:700;cursor:pointer;padding:8px 12px;font-family:inherit;width:100%}
 .yr-toggle svg{width:10px;height:10px;transition:transform 0.2s ease}
+.yr-table-container{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-top:4px}
 .yr-table{width:100%;border-collapse:collapse}
-.yr-table th{font-size:0.58rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;padding:8px 4px;text-align:right;border-bottom:1px solid var(--border2)}
+.yr-table thead tr{background:var(--surface2)}
+.yr-table th{font-size:0.58rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;padding:9px 12px;text-align:right;border-bottom:1px solid var(--border)}
 .yr-table th:first-child{text-align:left}
-.yr-table td{font-size:0.74rem;font-weight:600;color:var(--text1);padding:6px 4px;text-align:right;border-bottom:1px solid var(--border2)}
-.yr-table td:first-child{color:var(--text3);font-weight:500;text-align:left}
+.yr-table tbody tr{border-bottom:1px solid var(--border2)}
+.yr-table tbody tr:last-child{border-bottom:none}
+.yr-table tbody tr:nth-child(even){background:var(--surface2)}
+.yr-table td{font-size:0.74rem;font-weight:600;color:var(--text1);padding:10px 12px;text-align:right}
+.yr-table td:first-child{color:var(--text3);font-weight:700;text-align:left}
 .yr-body.closed{display:none}
 .info-note{display:flex;align-items:flex-start;gap:5px;padding:10px 0 2px;margin-top:8px;border-top:1px solid var(--border2)}
 .info-note span{font-size:0.62rem;color:var(--text3);line-height:1.5}
@@ -205,7 +237,7 @@ function renderLoan(type){
 
   // Part payments section
   html+=`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border2)">`;
-  html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:0.72rem;font-weight:700;color:var(--text1)">Part Payments</div><button class="btn btn-ghost" style="padding:6px 12px;font-size:0.72rem" onclick="showAddPP('${type}')">+ Add</button></div>`;
+  html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:0.72rem;font-weight:700;color:var(--text1)">Part Payments</div><button class="btn btn-ghost" style="padding:6px 12px;font-size:0.72rem" onclick="showAddPP('${type}')">Add</button></div>`;
   if(d.partPayments.length){
     html+=`<div class="pp-list">${d.partPayments.sort((a,b)=>a.month-b.month).map(pp=>`<div class="pp-item"><div class="pp-info"><div class="pp-amt">${fmt(pp.amount)} at month ${pp.month}</div><div class="pp-meta">${pp.strategy==='reduce-tenure'?'Reduce tenure':'Reduce EMI'}</div></div><button class="pp-del" onclick="removePP('${type}','${pp.id}')">✕</button></div>`).join('')}</div>`;
   } else {
@@ -215,8 +247,8 @@ function renderLoan(type){
 
   // Add PP form (hidden by default)
   html+=`<div id="${prefix}-pp-form" style="display:none;margin-top:10px;padding:12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r)">
-    <div class="fg"><label class="fl">Part Payment Amount (₹)</label><input class="fi" id="${prefix}-pp-amt" type="number" inputmode="numeric" placeholder="e.g. 100000"/></div>
-    <div class="fg"><label class="fl">At Month Number</label><input class="fi" id="${prefix}-pp-month" type="number" placeholder="e.g. 12"/></div>
+    <div class="fg"><label class="fl">Part Payment Amount (₹)</label><input class="fi" id="${prefix}-pp-amt" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="e.g. 100000"/></div>
+    <div class="fg"><label class="fl">At Month Number</label><input class="fi" id="${prefix}-pp-month" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="e.g. 12"/></div>
     <div class="fl" style="margin-bottom:6px">After Part Payment</div>
     <div class="radio-pills">
       <button class="radio-pill active" id="${prefix}-pp-str-tenure" onclick="setPPStrategy('${prefix}','reduce-tenure')">Reduce Tenure</button>
@@ -229,7 +261,7 @@ function renderLoan(type){
   </div>`;
 
   // Amortization
-  html+=`<div class="yr-table-wrap"><button class="yr-toggle" onclick="toggleYr(this,'${prefix}-tb')"><span>Amortization Schedule</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div id="${prefix}-tb" class="yr-body closed"><table class="yr-table"><thead><tr><th>Year</th><th>Principal</th><th>Interest</th><th>EMI</th><th>Balance</th></tr></thead><tbody>${yearData.map(y=>`<tr><td>${y.year}</td><td>${fmt(y.principal)}</td><td style="color:var(--red)">${fmt(y.interest)}</td><td>${fmt(y.emi)}</td><td>${fmt(y.balance)}</td></tr>`).join('')}</tbody></table></div></div>`;
+  html+=`<div class="yr-table-wrap"><button class="yr-toggle" onclick="toggleYr(this,'${prefix}-tb')"><span>Amortization Schedule</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div id="${prefix}-tb" class="yr-body closed"><div class="yr-table-container"><table class="yr-table"><thead><tr><th>Year</th><th>Principal</th><th>Interest</th><th>EMI</th><th>Balance</th></tr></thead><tbody>${yearData.map(y=>`<tr><td>${y.year}</td><td>${fmt(y.principal)}</td><td style="color:var(--red)">${fmt(y.interest)}</td><td>${fmt(y.emi)}</td><td>${fmt(y.balance)}</td></tr>`).join('')}</tbody></table></div></div></div>`;
 
   html+=`<div class="info-note"><span style="opacity:0.5">ⓘ</span><span>Part payments reduce outstanding principal. Choose "Reduce Tenure" to close loan early, or "Reduce EMI" to lower monthly burden.</span></div>`;
 
@@ -239,8 +271,8 @@ function renderLoan(type){
 function buildForm(type){
   const d=data[type];
   const prefix=type==='personal'?'pl':'hl';
-  return`<div class="fg"><label class="fl">Loan Amount (₹)</label><input class="fi" id="${prefix}-amt" type="number" inputmode="numeric" placeholder="e.g. ${type==='personal'?'500000':'5000000'}" value="${d.amount||''}" oninput="updateField('${type}','amount',this.value)"/></div>
-  <div class="form-row2"><div class="fg"><label class="fl">Interest Rate (% p.a.)</label><input class="fi" id="${prefix}-rate" type="number" step="0.1" placeholder="${type==='personal'?'12':'8.5'}" value="${d.rate||''}" oninput="updateField('${type}','rate',this.value)"/></div><div class="fg"><label class="fl">Tenure (months)</label><input class="fi" id="${prefix}-tenure" type="number" placeholder="${type==='personal'?'36':'240'}" value="${d.tenure||''}" oninput="updateField('${type}','tenure',this.value)"/></div></div>`;
+  return`<div class="fg"><label class="fl">Loan Amount (₹)</label><input class="fi" id="${prefix}-amt" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="e.g. ${type==='personal'?'500000':'5000000'}" value="${d.amount||''}" oninput="updateField('${type}','amount',this.value)"/></div>
+  <div class="form-row2"><div class="fg"><label class="fl">Interest Rate (% p.a.)</label><input class="fi" id="${prefix}-rate" type="text" inputmode="decimal" pattern="[0-9]*[.]?[0-9]*" placeholder="${type==='personal'?'12':'8.5'}" value="${d.rate||''}" oninput="updateField('${type}','rate',this.value)"/></div><div class="fg"><label class="fl">Tenure (months)</label><input class="fi" id="${prefix}-tenure" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="${type==='personal'?'36':'240'}" value="${d.tenure||''}" oninput="updateField('${type}','tenure',this.value)"/></div></div>`;
 }
 
 function updateField(type,field,val){data[type][field]=Number(val)||0;save();renderLoan(type)}
