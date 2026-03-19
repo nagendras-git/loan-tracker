@@ -56,7 +56,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .sec-hdr-card:active{background:var(--surface3)}
 .sec-hdr-left{display:flex;align-items:center;gap:8px;min-width:0}
 .sec-hdr-title{font-size:0.86rem;font-weight:600;color:var(--text1);display:inline-flex;align-items:center;gap:8px}
-.sec-hdr-title svg{opacity:0.45;flex-shrink:0}
 .sec-caret{color:var(--text3);transition:transform 0.25s var(--ease);display:flex;align-items:center}
 .sec-caret svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .sec-caret.open{transform:rotate(180deg)}
@@ -64,18 +63,17 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .sec-body.closed{max-height:0;opacity:0;pointer-events:none}
 .fg{margin-bottom:13px}
 .fl{font-size:0.68rem;font-weight:700;color:var(--text3);letter-spacing:0;margin-bottom:5px;display:block}
-.fl span{font-weight:400;letter-spacing:0;color:var(--text3);font-size:0.86rem}
 .fi{width:100%;max-width:100%;font-size:1rem;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);font-family:'Inter',sans-serif;font-weight:500;background:var(--surface2);color:var(--text1);outline:none;-webkit-appearance:none;transition:border-color 150ms,box-shadow 150ms;box-sizing:border-box}
 .fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,0.12);background:var(--surface)}
 .fi::placeholder{color:var(--text3)}
-.fi-sel{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a4a60' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;cursor:pointer}
 .form-row2{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-items:start}
 @media(max-width:340px){.form-row2{grid-template-columns:1fr}}
 .form-row2 .fg{display:flex;flex-direction:column}.form-row2 .fg .fi{flex:1;min-height:44px}
-.result-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;margin-top:10px}
-.result-label{font-size:0.62rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:3px}
-.result-val{font-size:1.45rem;font-weight:800;color:var(--text1)}
-.result-sub{font-size:0.72rem;color:var(--text3);margin-top:2px}
+/* EMI Hero */
+.result-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:16px 16px 14px;margin-top:10px}
+.result-label{font-size:0.6rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px}
+.result-val{font-size:2rem;font-weight:800;color:var(--text1);letter-spacing:-0.5px;line-height:1}
+.result-sub{font-size:0.72rem;color:var(--text3);margin-top:6px}
 .result-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border2)}
 .result-row:last-child{border-bottom:none}
 .result-row-label{font-size:0.78rem;color:var(--text2)}
@@ -86,7 +84,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .yr-toggle svg{width:10px;height:10px;transition:transform 0.2s ease}
 .yr-body.closed{display:none}
 .yr-cards{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-top:4px}
-/* Year col narrow, 3 value cols equal */
 .yr-hdr{display:grid;grid-template-columns:36px 1fr 1fr 1fr;background:var(--surface2);border-bottom:1px solid var(--border);padding:8px 12px;gap:8px}
 .yr-hdr-cell{font-size:0.58rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;text-align:right}
 .yr-hdr-cell:first-child{text-align:left}
@@ -95,7 +92,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .yr-row:nth-child(even){background:var(--surface2)}
 .yr-cell{font-size:0.78rem;font-weight:600;color:var(--text1);text-align:right;white-space:nowrap}
 .yr-cell:first-child{color:var(--text3);font-weight:700;text-align:left;font-size:0.82rem}
-/* Part payment rows */
+/* Part payments */
 .pp-list{margin-top:4px;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
 .pp-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border2);background:transparent}
 .pp-item:last-child{border-bottom:none}
@@ -106,7 +103,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .pp-edit{background:var(--surface2);border:1px solid var(--border);color:var(--blue);font-size:0.7rem;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:6px;font-family:inherit}
 .pp-del{background:var(--red-bg);border:1px solid rgba(248,113,113,0.25);color:var(--red);font-size:0.7rem;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:6px;font-family:inherit}
 .pp-edit-form{margin:0;padding:12px 14px;background:var(--surface2);border-top:1px solid var(--border2)}
-/* Font size slider */
+/* Font size */
 .fs-btn{padding:8px 4px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 150ms var(--ease)}
 .fs-btn:active{transform:scale(0.93)}
 .fs-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
@@ -120,12 +117,11 @@ input[type=range].custom-range::-webkit-slider-runnable-track{background:transpa
 .btn{padding:10px 16px;border-radius:var(--r);font-size:0.88rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:opacity 0.15s}
 .btn-primary{background:var(--blue);color:#fff}
 .btn-ghost{background:none;border:1px solid var(--border);color:var(--text2)}
-.info-note{display:flex;align-items:flex-start;gap:5px;padding:10px 0 2px;margin-top:8px;border-top:1px solid var(--border2)}
-.info-note span{font-size:0.62rem;color:var(--text3);line-height:1.5}
 .radio-pills{display:flex;gap:6px;margin-bottom:13px}
 .radio-pill{flex:1;padding:9px 0;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface2);color:var(--text3);font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;transition:all 0.15s}
 .radio-pill.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-/* Settings */
+.info-note{display:flex;align-items:flex-start;gap:5px;padding:10px 0 2px;margin-top:8px;border-top:1px solid var(--border2)}
+.info-note span{font-size:0.62rem;color:var(--text3);line-height:1.5}
 .toggle{position:relative;display:inline-block;width:44px;height:26px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0}
 .toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--surface3);border:1px solid var(--border);border-radius:99px;transition:0.2s}
@@ -137,23 +133,23 @@ input[type=range].custom-range::-webkit-slider-runnable-track{background:transpa
 <body data-theme="dark">
 <div class="top-header"><div class="hdr-title">Loan Tracker</div></div>
 
-<!-- PERSONAL LOAN -->
 <div class="page active" id="page-personal"><div class="container" style="padding-top:8px">
   <div class="card" id="pl-form-card"></div>
   <div id="pl-results-card"></div>
 </div></div>
 
-<!-- HOME LOAN -->
 <div class="page" id="page-home"><div class="container" style="padding-top:8px">
   <div class="card" id="hl-form-card"></div>
   <div id="hl-results-card"></div>
 </div></div>
 
-<!-- SETTINGS -->
 <div class="page" id="page-settings"><div class="container" style="padding-top:8px">
   <div class="sec-hdr-card" onclick="toggleSec('sec-appear')"><div class="sec-hdr-left"><span class="sec-hdr-title">Appearance</span></div><span class="sec-caret" id="caret-sec-appear"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span></div>
   <div class="sec-body closed" id="sec-appear"><div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0 10px;border-bottom:1px solid var(--border2);margin-bottom:10px"><div style="display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span style="font-size:0.88rem;font-weight:600">Dark Mode</span></div><label class="toggle"><input type="checkbox" id="theme-toggle" onchange="toggleTheme(this.checked)"/><span class="toggle-slider"></span></label></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0 10px;border-bottom:1px solid var(--border2);margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span style="font-size:0.88rem;font-weight:600">Dark Mode</span></div>
+      <label class="toggle"><input type="checkbox" id="theme-toggle" onchange="toggleTheme(this.checked)"/><span class="toggle-slider"></span></label>
+    </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg><span style="font-size:0.88rem;font-weight:600">Text Size</span></div>
     <div style="font-size:0.7rem;color:var(--text3);margin-bottom:10px">Adjust app font size</div>
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
@@ -175,10 +171,18 @@ input[type=range].custom-range::-webkit-slider-runnable-track{background:transpa
       <span style="font-size:0.6rem;color:var(--text3)">Larger</span>
     </div>
   </div></div>
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:0.86rem;font-weight:600;color:var(--text1)">Clear All Data</div>
+        <div style="font-size:0.7rem;color:var(--text3);margin-top:2px">Reset both loans to defaults</div>
+      </div>
+      <button onclick="clearAllData()" style="padding:7px 14px;border-radius:var(--r);border:1px solid rgba(248,113,113,0.35);background:var(--red-bg);color:var(--red);font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit">Clear</button>
+    </div>
+  </div>
   <div style="text-align:center;padding:16px 0;font-size:0.72rem;color:var(--text3)">Data stored on your device only 🔒</div>
 </div></div>
 
-<!-- TAB BAR -->
 <nav class="tab-bar"><div class="tab-bar-inner">
   <button class="tab-item active" onclick="nav('personal',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg></div><div class="tab-label">Personal</div></button>
   <button class="tab-item" onclick="nav('home',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="tab-label">Home</div></button>
@@ -187,12 +191,16 @@ input[type=range].custom-range::-webkit-slider-runnable-track{background:transpa
 
 <script>
 const LS_KEY='loan_tracker_v1';
-let data={personal:{amount:500000,rate:12,tenure:36,partPayments:[]},home:{amount:5000000,rate:8.5,tenure:240,partPayments:[]}};
+let data={personal:{amount:0,rate:0,tenure:0,partPayments:[]},home:{amount:0,rate:0,tenure:0,partPayments:[]}};
 
+// fmt: compact for summary rows (e.g. ₹53.4K, ₹2.48L)
 function fmt(n){const v=Math.abs(Number(n)||0);let s='';if(v>=10000000)s=(v/10000000).toFixed(2)+'Cr';else if(v>=100000)s=(v/100000).toFixed(2)+'L';else if(v>=1000)s=(v/1000).toFixed(1)+'K';else s=v.toFixed(0);return(n<0?'-':'')+'₹'+s}
+// fmtFull: exact rupee amount with commas for EMI hero (e.g. ₹53,433)
+function fmtFull(n){const v=Math.round(Math.abs(Number(n)||0));const s=v.toLocaleString('en-IN');return(n<0?'-':'')+'₹'+s}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function save(){localStorage.setItem(LS_KEY,JSON.stringify(data))}
 function load(){try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d){data=d}}catch(e){}}
+
 function nav(p,btn){
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
@@ -212,6 +220,22 @@ function setFontSize(px){
   if(bar){bar.value=FS_IDX[px]??2;updateRangeFill(FS_IDX[px]??2);}
   document.querySelectorAll('.fs-btn').forEach(b=>b.classList.toggle('active',Number(b.dataset.size)===px));
 }
+function clearAllData(){
+  if(!confirm('Reset both loans to defaults? This cannot be undone.'))return;
+  // Reset data
+  data={personal:{amount:0,rate:0,tenure:0,partPayments:[]},home:{amount:0,rate:0,tenure:0,partPayments:[]}};
+  save();
+  // Fully destroy and rebuild both form cards so inputs clear
+  ['pl','hl'].forEach(prefix=>{
+    const fc=document.getElementById(prefix+'-form-card');
+    if(fc){fc.innerHTML='';delete fc.dataset.built;}
+    const rc=document.getElementById(prefix+'-results-card');
+    if(rc)rc.innerHTML='';
+  });
+  renderLoan('personal');
+  renderLoan('home');
+}
+
 function emiCalc(P,annualRate,months){const r=annualRate/12;if(r===0)return P/months;return P*r*Math.pow(1+r,months)/(Math.pow(1+r,months)-1)}
 
 function renderForm(type){
@@ -233,6 +257,7 @@ function renderForm(type){
       </div>
     </div>`;
 }
+
 function onField(type,field,el){
   data[type][field]=field==='rate'?(parseFloat(el.value)||0):(Number(el.value)||0);
   save();renderResults(type);
@@ -267,16 +292,25 @@ function renderResults(type){
   }
   if(yearP>0||yearI>0)yearData.push({year:yearData.length+1,principal:yearP,interest:yearI,balance:0,emi:newEmi});
   const interestSaved=interestNopp-totalInterest,monthsSaved=tenure-months;
+  const hasPP=d.partPayments.length>0;
 
   let html=`<div class="card" style="margin-top:0">`;
-  html+=`<div class="result-card"><div class="result-label">Monthly EMI</div><div class="result-val">${fmt(emi)}</div><div class="result-sub">for ${tenure} months (${(tenure/12).toFixed(1)} years)</div></div>`;
+
+  // EMI Hero — full exact number
+  html+=`<div class="result-card">
+    <div class="result-label">Monthly EMI</div>
+    <div class="result-val">${fmtFull(emi)}</div>
+    <div class="result-sub">for ${tenure} months &nbsp;·&nbsp; ${(tenure/12).toFixed(1)} years</div>
+  </div>`;
+
+  // Summary rows — compact fmt
   html+=`<div style="margin-top:8px">`;
   html+=`<div class="result-row"><span class="result-row-label">Total Payable</span><span class="result-row-val">${fmt(totalPaid)}</span></div>`;
   html+=`<div class="result-row"><span class="result-row-label">Total Interest</span><span class="result-row-val" style="color:var(--red)">${fmt(totalInterest)}</span></div>`;
-  html+=`<div class="result-row"><span class="result-row-label">Interest without Part Payment</span><span class="result-row-val">${fmt(interestNopp)}</span></div>`;
+  if(hasPP)html+=`<div class="result-row"><span class="result-row-label">Interest without Part Payment</span><span class="result-row-val">${fmt(interestNopp)}</span></div>`;
   if(interestSaved>0)html+=`<div class="result-row"><span class="result-row-label">Interest Saved</span><span class="result-row-val" style="color:var(--green)">${fmt(interestSaved)}</span></div>`;
   if(monthsSaved>0)html+=`<div class="result-row"><span class="result-row-label">Closes Early By</span><span class="result-row-val" style="color:var(--green)">${monthsSaved} months</span></div>`;
-  if(newEmi!==emi)html+=`<div class="result-row"><span class="result-row-label">Revised EMI</span><span class="result-row-val" style="color:var(--green)">${fmt(newEmi)}</span></div>`;
+  if(newEmi!==emi)html+=`<div class="result-row"><span class="result-row-label">Revised EMI</span><span class="result-row-val" style="color:var(--green)">${fmtFull(newEmi)}</span></div>`;
   html+=`<div class="result-row"><span class="result-row-label">Actual Tenure</span><span class="result-row-val">${months} months (${(months/12).toFixed(1)}y)</span></div>`;
   html+=`</div>`;
 
@@ -286,7 +320,7 @@ function renderResults(type){
     <div style="font-size:0.82rem;font-weight:700;color:var(--text1)">Part Payments</div>
     <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.72rem" onclick="showAddPP('${type}')">Add</button>
   </div>`;
-  if(d.partPayments.length){
+  if(hasPP){
     html+=`<div class="pp-list">`;
     d.partPayments.sort((a,b)=>a.month-b.month).forEach(pp=>{
       html+=`<div class="pp-item">
@@ -382,8 +416,7 @@ function addPP(type,prefix){
 function removePP(type,id){data[type].partPayments=data[type].partPayments.filter(p=>p.id!==id);save();renderResults(type);}
 function editPP(type,id){
   document.querySelectorAll('.pp-edit-form').forEach(el=>el.style.display='none');
-  const ef=document.getElementById('pp-ef-'+id);
-  if(ef)ef.style.display='';
+  const ef=document.getElementById('pp-ef-'+id);if(ef)ef.style.display='';
 }
 function cancelEditPP(id){const ef=document.getElementById('pp-ef-'+id);if(ef)ef.style.display='none';}
 function setEditStrategy(id,strategy){
