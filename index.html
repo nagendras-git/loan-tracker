@@ -130,7 +130,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .range-track{position:absolute;left:0;right:0;height:4px;background:var(--surface3);border-radius:99px;top:50%;transform:translateY(-50%)}
 .range-fill{position:absolute;left:0;height:100%;background:var(--blue);border-radius:99px;transition:width .1s}
 input[type=range].custom-range{position:relative;width:100%;height:22px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;margin:0;z-index:1;padding:0;outline:none}
-input[type=range].custom-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:none;box-shadow:0 1px 6px rgba(0,0,0,.35);transition:transform .1s;margin-top:-9px}
+input[type=range].custom-range::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:none;box-shadow:0 1px 6px rgba(0,0,0,.35);transition:transform .1s;margin-top:-9px}
 input[type=range].custom-range:active::-webkit-slider-thumb{transform:scale(1.15)}
 input[type=range].custom-range::-webkit-slider-runnable-track{background:transparent;height:4px}
 </style>
@@ -140,12 +140,14 @@ input[type=range].custom-range::-webkit-slider-runnable-track{background:transpa
 
 <!-- ═══ PERSONAL LOAN ═══ -->
 <div class="page active" id="page-personal"><div class="container" style="padding-top:8px">
-  <div class="card" id="pl-card"></div>
+  <div class="card" id="pl-form-card"></div>
+  <div id="pl-results-card"></div>
 </div></div>
 
 <!-- ═══ HOME LOAN ═══ -->
 <div class="page" id="page-home"><div class="container" style="padding-top:8px">
-  <div class="card" id="hl-card"></div>
+  <div class="card" id="hl-form-card"></div>
+  <div id="hl-results-card"></div>
 </div></div>
 
 <!-- ═══ SETTINGS ═══ -->
@@ -158,7 +160,7 @@ input[type=range].custom-range::-webkit-slider-runnable-track{background:transpa
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
       <button onclick="setFontSize(13)" class="fs-btn" data-size="13">XS</button>
       <button onclick="setFontSize(14)" class="fs-btn" data-size="14">S</button>
-      <button onclick="setFontSize(16)" class="fs-btn" data-size="16">M</button>
+      <button onclick="setFontSize(16)" class="fs-btn active" data-size="16">M</button>
       <button onclick="setFontSize(18)" class="fs-btn" data-size="18">L</button>
       <button onclick="setFontSize(20)" class="fs-btn" data-size="20">XL</button>
     </div>
@@ -192,7 +194,13 @@ function fmt(n){const v=Math.abs(Number(n)||0);let s='';if(v>=10000000)s=(v/1000
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function save(){localStorage.setItem(LS_KEY,JSON.stringify(data))}
 function load(){try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d){data=d}}catch(e){}}
-function nav(p,btn){document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active')}
+function nav(p,btn){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  if(p==='personal'||p==='home')renderLoan(p);
+}
 function toggleSec(id){const el=document.getElementById(id);if(!el)return;const c=el.classList.toggle('closed');document.getElementById('caret-'+id)?.classList.toggle('open',!c)}
 function toggleYr(btn,id){const b=document.getElementById(id);b.classList.toggle('closed');const o=!b.classList.contains('closed');const t=btn.querySelector('span').textContent.replace('Hide ','');btn.querySelector('span').textContent=o?'Hide '+t:t;btn.querySelector('svg').style.transform=o?'rotate(180deg)':''}
 function toggleTheme(d){document.body.setAttribute('data-theme',d?'dark':'light');localStorage.setItem('loan_theme',d?'dark':'light')}
@@ -208,53 +216,59 @@ function setFontSize(px){
 
 function emiCalc(P,annualRate,months){const r=annualRate/12;if(r===0)return P/months;return P*r*Math.pow(1+r,months)/(Math.pow(1+r,months)-1)}
 
-function renderLoan(type){
+function renderForm(type){
+  const d=data[type];
+  const prefix=type==='personal'?'pl':'hl';
+  const fc=document.getElementById(prefix+'-form-card');
+  if(!fc||fc.dataset.built)return;
+  fc.dataset.built='1';
+  fc.innerHTML=`
+    <div class="fg"><label class="fl">Loan Amount (₹)</label>
+      <input class="fi" id="${prefix}-amt" type="number" inputmode="numeric" placeholder="e.g. ${type==='personal'?'500000':'5000000'}" value="${d.amount||''}" oninput="onField('${type}','amount',this)"/>
+    </div>
+    <div class="form-row2">
+      <div class="fg"><label class="fl">Interest Rate (% p.a.)</label>
+        <input class="fi" id="${prefix}-rate" type="number" inputmode="decimal" step="0.01" placeholder="${type==='personal'?'12':'8.5'}" value="${d.rate||''}" oninput="onField('${type}','rate',this)"/>
+      </div>
+      <div class="fg"><label class="fl">Tenure (months)</label>
+        <input class="fi" id="${prefix}-tenure" type="number" inputmode="numeric" placeholder="${type==='personal'?'36':'240'}" value="${d.tenure||''}" oninput="onField('${type}','tenure',this)"/>
+      </div>
+    </div>`;
+}
+function onField(type,field,el){
+  data[type][field]=field==='rate'?(parseFloat(el.value)||0):(Number(el.value)||0);
+  save();renderResults(type);
+}
+function renderLoan(type){renderForm(type);renderResults(type);}
+function renderResults(type){
   const d=data[type];
   const P=Number(d.amount||0),annualRate=Number(d.rate||0)/100,tenure=Number(d.tenure||0);
   const prefix=type==='personal'?'pl':'hl';
-  const card=document.getElementById(prefix+'-card');
-  if(!P||!annualRate||!tenure){card.innerHTML=buildForm(type);return}
-
+  const rc=document.getElementById(prefix+'-results-card');
+  if(!rc)return;
+  if(!P||!annualRate||!tenure){rc.innerHTML='';return}
   const r=annualRate/12;
-  const emi=emiCalc(P,annualRate/12,tenure);
-  const totalNopp=emi*tenure;
-  const interestNopp=totalNopp-P;
-
-  // Simulate with part payments
+  const emi=emiCalc(P,annualRate,tenure);
+  const totalNopp=emi*tenure,interestNopp=totalNopp-P;
   let bal=P,months=0,totalPaid=0,totalInterest=0;
   const ppSorted=[...d.partPayments].sort((a,b)=>a.month-b.month);
   const yearData=[];
-  let yearP=0,yearI=0,currentEmi=emi,newEmi=emi;
-
+  let yearP=0,yearI=0,newEmi=emi;
   for(let m=1;m<=tenure*2&&bal>0;m++){
-    const intPart=bal*r;
-    const prinPart=Math.min(bal,newEmi-intPart);
+    const intPart=bal*r,prinPart=Math.min(bal,newEmi-intPart);
     bal-=prinPart;totalPaid+=newEmi;totalInterest+=intPart;
     yearP+=prinPart;yearI+=intPart;months=m;
-
-    // Check part payments at this month
-    const pp=ppSorted.filter(p=>p.month===m);
-    pp.forEach(p=>{
+    ppSorted.filter(p=>p.month===m).forEach(p=>{
       const ppAmt=Math.min(p.amount,bal);
       bal-=ppAmt;totalPaid+=ppAmt;
-      if(p.strategy==='reduce-emi'&&bal>0){
-        const remMonths=tenure-m;
-        if(remMonths>0)newEmi=emiCalc(bal,r,remMonths);
-      }
+      if(p.strategy==='reduce-emi'&&bal>0){const rm=tenure-m;if(rm>0)newEmi=emiCalc(bal,annualRate,rm);}
     });
-
-    if(m%12===0||bal<=0){
-      yearData.push({year:Math.ceil(m/12),principal:yearP,interest:yearI,balance:Math.max(0,bal),emi:newEmi});
-      yearP=0;yearI=0;
-    }
+    if(m%12===0||bal<=0){yearData.push({year:Math.ceil(m/12),principal:yearP,interest:yearI,balance:Math.max(0,bal),emi:newEmi});yearP=0;yearI=0;}
     if(bal<=0)break;
   }
   if(yearP>0||yearI>0)yearData.push({year:yearData.length+1,principal:yearP,interest:yearI,balance:0,emi:newEmi});
-
-  const interestSaved=interestNopp-totalInterest;
-  const monthsSaved=tenure-months;
-
-  let html=buildForm(type);
+  const interestSaved=interestNopp-totalInterest,monthsSaved=tenure-months;
+  let html=`<div class="card" style="margin-top:0">`;
   html+=`<div class="result-card"><div class="result-label">Monthly EMI</div><div class="result-val">${fmt(emi)}</div><div class="result-sub">for ${tenure} months (${(tenure/12).toFixed(1)} years)</div></div>`;
   html+=`<div style="margin-top:8px">`;
   html+=`<div class="result-row"><span class="result-row-label">Total Payable</span><span class="result-row-val">${fmt(totalPaid)}</span></div>`;
@@ -265,21 +279,14 @@ function renderLoan(type){
   if(newEmi!==emi)html+=`<div class="result-row"><span class="result-row-label">Revised EMI</span><span class="result-row-val" style="color:var(--green)">${fmt(newEmi)}</span></div>`;
   html+=`<div class="result-row"><span class="result-row-label">Actual Tenure</span><span class="result-row-val">${months} months (${(months/12).toFixed(1)}y)</span></div>`;
   html+=`</div>`;
-
-  // Part payments section
   html+=`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border2)">`;
   html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:0.72rem;font-weight:700;color:var(--text1)">Part Payments</div><button class="btn btn-ghost" style="padding:6px 12px;font-size:0.72rem" onclick="showAddPP('${type}')">Add</button></div>`;
-  if(d.partPayments.length){
-    html+=`<div class="pp-list">${d.partPayments.sort((a,b)=>a.month-b.month).map(pp=>`<div class="pp-item"><div class="pp-info"><div class="pp-amt">${fmt(pp.amount)} at month ${pp.month}</div><div class="pp-meta">${pp.strategy==='reduce-tenure'?'Reduce tenure':'Reduce EMI'}</div></div><button class="pp-del" onclick="removePP('${type}','${pp.id}')">✕</button></div>`).join('')}</div>`;
-  } else {
-    html+=`<div style="font-size:0.72rem;color:var(--text3);padding:8px 0">No part payments added yet.</div>`;
-  }
+  if(d.partPayments.length){html+=`<div class="pp-list">${d.partPayments.sort((a,b)=>a.month-b.month).map(pp=>`<div class="pp-item"><div class="pp-info"><div class="pp-amt">${fmt(pp.amount)} at month ${pp.month}</div><div class="pp-meta">${pp.strategy==='reduce-tenure'?'Reduce tenure':'Reduce EMI'}</div></div><button class="pp-del" onclick="removePP('${type}','${pp.id}')">✕</button></div>`).join('')}</div>`;}
+  else{html+=`<div style="font-size:0.72rem;color:var(--text3);padding:8px 0">No part payments added yet.</div>`;}
   html+=`</div>`;
-
-  // Add PP form (hidden by default)
   html+=`<div id="${prefix}-pp-form" style="display:none;margin-top:10px;padding:12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r)">
-    <div class="fg"><label class="fl">Part Payment Amount (₹)</label><input class="fi" id="${prefix}-pp-amt" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="e.g. 100000"/></div>
-    <div class="fg"><label class="fl">At Month Number</label><input class="fi" id="${prefix}-pp-month" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="e.g. 12"/></div>
+    <div class="fg"><label class="fl">Part Payment Amount (₹)</label><input class="fi" id="${prefix}-pp-amt" type="number" inputmode="numeric" placeholder="e.g. 100000"/></div>
+    <div class="fg"><label class="fl">At Month Number</label><input class="fi" id="${prefix}-pp-month" type="number" inputmode="numeric" placeholder="e.g. 12"/></div>
     <div class="fl" style="margin-bottom:6px">After Part Payment</div>
     <div class="radio-pills">
       <button class="radio-pill active" id="${prefix}-pp-str-tenure" onclick="setPPStrategy('${prefix}','reduce-tenure')">Reduce Tenure</button>
@@ -290,23 +297,11 @@ function renderLoan(type){
       <button class="btn btn-primary" style="padding:8px 14px;font-size:0.78rem" onclick="addPP('${type}','${prefix}')">Add</button>
     </div>
   </div>`;
-
-  // Amortization
   html+=`<div class="yr-table-wrap"><button class="yr-toggle" onclick="toggleYr(this,'${prefix}-tb')"><span>Amortization Schedule</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div id="${prefix}-tb" class="yr-body closed"><div class="yr-table-container"><table class="yr-table"><thead><tr><th>Year</th><th>Principal</th><th>Interest</th><th>EMI</th><th>Balance</th></tr></thead><tbody>${yearData.map(y=>`<tr><td>${y.year}</td><td>${fmt(y.principal)}</td><td style="color:var(--red)">${fmt(y.interest)}</td><td>${fmt(y.emi)}</td><td>${fmt(y.balance)}</td></tr>`).join('')}</tbody></table></div></div></div>`;
-
   html+=`<div class="info-note"><span style="opacity:0.5">ⓘ</span><span>Part payments reduce outstanding principal. Choose "Reduce Tenure" to close loan early, or "Reduce EMI" to lower monthly burden.</span></div>`;
-
-  card.innerHTML=html;
+  html+=`</div>`;
+  rc.innerHTML=html;
 }
-
-function buildForm(type){
-  const d=data[type];
-  const prefix=type==='personal'?'pl':'hl';
-  return`<div class="fg"><label class="fl">Loan Amount (₹)</label><input class="fi" id="${prefix}-amt" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="e.g. ${type==='personal'?'500000':'5000000'}" value="${d.amount||''}" oninput="updateField('${type}','amount',this.value)"/></div>
-  <div class="form-row2"><div class="fg"><label class="fl">Interest Rate (% p.a.)</label><input class="fi" id="${prefix}-rate" type="text" inputmode="decimal" pattern="[0-9]*[.]?[0-9]*" placeholder="${type==='personal'?'12':'8.5'}" value="${d.rate||''}" oninput="updateField('${type}','rate',this.value)"/></div><div class="fg"><label class="fl">Tenure (months)</label><input class="fi" id="${prefix}-tenure" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="${type==='personal'?'36':'240'}" value="${d.tenure||''}" oninput="updateField('${type}','tenure',this.value)"/></div></div>`;
-}
-
-function updateField(type,field,val){data[type][field]=Number(val)||0;save();renderLoan(type)}
 function showAddPP(type){const p=type==='personal'?'pl':'hl';document.getElementById(p+'-pp-form').style.display=''}
 function hideAddPP(prefix){document.getElementById(prefix+'-pp-form').style.display='none'}
 function setPPStrategy(prefix,strategy){
@@ -320,9 +315,9 @@ function addPP(type,prefix){
   const strategy=document.getElementById(prefix+'-pp-form').dataset?.strategy||'reduce-tenure';
   if(!amt||!month)return;
   data[type].partPayments.push({id:uid(),amount:amt,month,strategy});
-  save();renderLoan(type);
+  save();renderResults(type);
 }
-function removePP(type,id){data[type].partPayments=data[type].partPayments.filter(p=>p.id!==id);save();renderLoan(type)}
+function removePP(type,id){data[type].partPayments=data[type].partPayments.filter(p=>p.id!==id);save();renderResults(type);}
 
 // Init
 (function(){
@@ -331,8 +326,7 @@ function removePP(type,id){data[type].partPayments=data[type].partPayments.filte
   if(t){document.body.setAttribute('data-theme',t);if(tgl)tgl.checked=t==='dark'}
   else if(matchMedia('(prefers-color-scheme:light)').matches){document.body.setAttribute('data-theme','light');if(tgl)tgl.checked=false}
   else{if(tgl)tgl.checked=true}
-  const fs=localStorage.getItem('loan_fs');
-  if(fs){setFontSize(Number(fs));}else{setFontSize(16);}
+  setFontSize(Number(localStorage.getItem('loan_fs'))||16);
   renderLoan('personal');renderLoan('home');
 })();
 </script>
