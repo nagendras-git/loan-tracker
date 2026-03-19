@@ -12,28 +12,21 @@
 <link rel="apple-touch-icon" id="apple-touch-icon" sizes="180x180" href="">
 <script>
 (function(){
-  var c=document.createElement('canvas');
-  c.width=180;c.height=180;
-  var ctx=c.getContext('2d');
-  var r=36;
-  ctx.beginPath();
-  ctx.moveTo(r,0);ctx.lineTo(180-r,0);ctx.quadraticCurveTo(180,0,180,r);
+  var c=document.createElement('canvas');c.width=180;c.height=180;
+  var ctx=c.getContext('2d'),r=36;
+  ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(180-r,0);ctx.quadraticCurveTo(180,0,180,r);
   ctx.lineTo(180,180-r);ctx.quadraticCurveTo(180,180,180-r,180);
   ctx.lineTo(r,180);ctx.quadraticCurveTo(0,180,0,180-r);
-  ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);
-  ctx.closePath();
+  ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();
   var g=ctx.createLinearGradient(0,0,180,180);
   g.addColorStop(0,'#1e3a8a');g.addColorStop(1,'#1d4ed8');
   ctx.fillStyle=g;ctx.fill();
-  ctx.fillStyle='#ffffff';
-  ctx.font='bold 96px -apple-system,Arial,sans-serif';
-  ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText('₹',90,95);
-  var dataURL=c.toDataURL('image/png');
-  document.getElementById('apple-touch-icon').href=dataURL;
-  var fav=document.createElement('link');
-  fav.rel='icon';fav.type='image/png';fav.href=dataURL;
-  document.head.appendChild(fav);
+  ctx.fillStyle='#ffffff';ctx.font='bold 96px -apple-system,Arial,sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('₹',90,95);
+  var d=c.toDataURL('image/png');
+  document.getElementById('apple-touch-icon').href=d;
+  var f=document.createElement('link');f.rel='icon';f.type='image/png';f.href=d;
+  document.head.appendChild(f);
 })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -44,7 +37,7 @@
 [data-theme="light"] .top-header{background:var(--bg);border-bottom:1px solid var(--border)}
 [data-theme="light"] .tab-bar{background:var(--bg);border-top:1px solid var(--border)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{height:100%;overflow-x:hidden;font-size:16px;background:var(--bg)}
+html{height:100%;overflow-x:hidden;font-size:1rem;background:var(--bg)}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text1);min-height:100vh;max-width:100vw;padding-bottom:calc(var(--nav-h) + var(--safe-b) + 4px);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 ::-webkit-scrollbar{width:0;height:0}
 .top-header{position:sticky;top:0;z-index:90;background:rgba(13,13,16,0.95);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding:calc(12px + var(--safe-t)) 20px 10px}
