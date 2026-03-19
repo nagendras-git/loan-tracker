@@ -37,7 +37,7 @@
 [data-theme="light"] .top-header{background:var(--bg);border-bottom:1px solid var(--border)}
 [data-theme="light"] .tab-bar{background:var(--bg);border-top:1px solid var(--border)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{height:100%;overflow-x:hidden;font-size:1rem;background:var(--bg)}
+html{height:100%;overflow-x:hidden;background:var(--bg)}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text1);min-height:100vh;max-width:100vw;padding-bottom:calc(var(--nav-h) + var(--safe-b) + 4px);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 ::-webkit-scrollbar{width:0;height:0}
 .top-header{position:sticky;top:0;z-index:90;background:rgba(13,13,16,0.95);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding:calc(12px + var(--safe-t)) 20px 10px}
@@ -84,15 +84,20 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .yr-toggle{display:flex;align-items:center;justify-content:center;gap:4px;background:none;border:none;color:var(--blue);font-size:0.72rem;font-weight:700;cursor:pointer;padding:8px 12px;font-family:inherit;width:100%}
 .yr-toggle svg{width:10px;height:10px;transition:transform 0.2s ease}
 .yr-table-container{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-top:4px}
-.yr-table{width:100%;border-collapse:collapse}
+.yr-table{width:100%;border-collapse:collapse;table-layout:fixed}
 .yr-table thead tr{background:var(--surface2)}
-.yr-table th{font-size:0.58rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;padding:9px 12px;text-align:right;border-bottom:1px solid var(--border)}
-.yr-table th:first-child{text-align:left}
+.yr-table th{font-size:0.58rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;padding:9px 6px;text-align:right;border-bottom:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.yr-table th:first-child{text-align:left;padding-left:10px;width:14%}
+.yr-table th:nth-child(2){width:22%}
+.yr-table th:nth-child(3){width:22%}
+.yr-table th:nth-child(4){width:18%}
+.yr-table th:last-child{width:24%;padding-right:10px}
 .yr-table tbody tr{border-bottom:1px solid var(--border2)}
 .yr-table tbody tr:last-child{border-bottom:none}
 .yr-table tbody tr:nth-child(even){background:var(--surface2)}
-.yr-table td{font-size:0.74rem;font-weight:600;color:var(--text1);padding:10px 12px;text-align:right}
-.yr-table td:first-child{color:var(--text3);font-weight:700;text-align:left}
+.yr-table td{font-size:0.74rem;font-weight:600;color:var(--text1);padding:9px 6px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.yr-table td:first-child{color:var(--text3);font-weight:700;text-align:left;padding-left:10px}
+.yr-table td:last-child{padding-right:10px}
 .yr-body.closed{display:none}
 .info-note{display:flex;align-items:flex-start;gap:5px;padding:10px 0 2px;margin-top:8px;border-top:1px solid var(--border2)}
 .info-note span{font-size:0.62rem;color:var(--text3);line-height:1.5}
@@ -118,9 +123,16 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .toggle-slider::before{content:'';position:absolute;height:20px;width:20px;left:2px;bottom:2px;background:var(--text3);border-radius:50%;transition:0.2s}
 .toggle input:checked+.toggle-slider{background:var(--blue);border-color:var(--blue)}
 .toggle input:checked+.toggle-slider::before{transform:translateX(18px);background:#fff}
-.size-picker{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
-.size-btn{padding:10px 0;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface2);color:var(--text3);font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s}
-.size-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.fs-btn{padding:8px 4px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 150ms var(--ease)}
+.fs-btn:active{transform:scale(0.93)}
+.fs-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.range-wrap{position:relative;width:100%;height:22px;display:flex;align-items:center}
+.range-track{position:absolute;left:0;right:0;height:4px;background:var(--surface3);border-radius:99px;top:50%;transform:translateY(-50%)}
+.range-fill{position:absolute;left:0;height:100%;background:var(--blue);border-radius:99px;transition:width .1s}
+input[type=range].custom-range{position:relative;width:100%;height:22px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;margin:0;z-index:1;padding:0;outline:none}
+input[type=range].custom-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:none;box-shadow:0 1px 6px rgba(0,0,0,.35);transition:transform .1s;margin-top:-9px}
+input[type=range].custom-range:active::-webkit-slider-thumb{transform:scale(1.15)}
+input[type=range].custom-range::-webkit-slider-runnable-track{background:transparent;height:4px}
 </style>
 </head>
 <body data-theme="dark">
@@ -142,7 +154,25 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   <div class="sec-body closed" id="sec-appear"><div class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0 10px;border-bottom:1px solid var(--border2);margin-bottom:10px"><div style="display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span style="font-size:0.88rem;font-weight:600">Dark Mode</span></div><label class="toggle"><input type="checkbox" id="theme-toggle" onchange="toggleTheme(this.checked)"/><span class="toggle-slider"></span></label></div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg><span style="font-size:0.88rem;font-weight:600">Text Size</span></div>
-    <div class="size-picker"><button class="size-btn" onclick="setSize(15)" data-size="15">S</button><button class="size-btn active" onclick="setSize(16)" data-size="16">M</button><button class="size-btn" onclick="setSize(17)" data-size="17">L</button><button class="size-btn" onclick="setSize(18)" data-size="18">XL</button></div>
+    <div style="font-size:0.7rem;color:var(--text3);margin-bottom:10px">Adjust app font size</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
+      <button onclick="setFontSize(13)" class="fs-btn" data-size="13">XS</button>
+      <button onclick="setFontSize(14)" class="fs-btn" data-size="14">S</button>
+      <button onclick="setFontSize(16)" class="fs-btn" data-size="16">M</button>
+      <button onclick="setFontSize(18)" class="fs-btn" data-size="18">L</button>
+      <button onclick="setFontSize(20)" class="fs-btn" data-size="20">XL</button>
+    </div>
+    <div style="margin-top:10px">
+      <div class="range-wrap">
+        <div class="range-track"><div class="range-fill" id="range-fill" style="width:50%"></div></div>
+        <input type="range" class="custom-range" id="font-size-bar" min="0" max="4" step="1" value="2"
+          oninput="const s=[13,14,16,18,20];setFontSize(s[this.value]);updateRangeFill(+this.value)"/>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px">
+      <span style="font-size:0.6rem;color:var(--text3)">Smaller</span>
+      <span style="font-size:0.6rem;color:var(--text3)">Larger</span>
+    </div>
   </div></div>
   <div style="text-align:center;padding:16px 0;font-size:0.72rem;color:var(--text3)">Data stored on your device only 🔒</div>
 </div></div>
@@ -166,7 +196,15 @@ function nav(p,btn){document.querySelectorAll('.page').forEach(e=>e.classList.re
 function toggleSec(id){const el=document.getElementById(id);if(!el)return;const c=el.classList.toggle('closed');document.getElementById('caret-'+id)?.classList.toggle('open',!c)}
 function toggleYr(btn,id){const b=document.getElementById(id);b.classList.toggle('closed');const o=!b.classList.contains('closed');const t=btn.querySelector('span').textContent.replace('Hide ','');btn.querySelector('span').textContent=o?'Hide '+t:t;btn.querySelector('svg').style.transform=o?'rotate(180deg)':''}
 function toggleTheme(d){document.body.setAttribute('data-theme',d?'dark':'light');localStorage.setItem('loan_theme',d?'dark':'light')}
-function setSize(v){document.documentElement.style.fontSize=v+'px';document.querySelectorAll('.size-btn').forEach(b=>b.classList.toggle('active',Number(b.dataset.size)===v));localStorage.setItem('loan_fs',v)}
+const FS_IDX={13:0,14:1,16:2,18:3,20:4};
+function updateRangeFill(idx){const f=document.getElementById('range-fill');if(f)f.style.width=(idx/4*100)+'%';}
+function setFontSize(px){
+  document.documentElement.style.fontSize=px+'px';
+  localStorage.setItem('loan_fs',px);
+  const bar=document.getElementById('font-size-bar');
+  if(bar){bar.value=FS_IDX[px]??2;updateRangeFill(FS_IDX[px]??2);}
+  document.querySelectorAll('.fs-btn').forEach(b=>b.classList.toggle('active',Number(b.dataset.size)===px));
+}
 
 function emiCalc(P,annualRate,months){const r=annualRate/12;if(r===0)return P/months;return P*r*Math.pow(1+r,months)/(Math.pow(1+r,months)-1)}
 
@@ -294,7 +332,7 @@ function removePP(type,id){data[type].partPayments=data[type].partPayments.filte
   else if(matchMedia('(prefers-color-scheme:light)').matches){document.body.setAttribute('data-theme','light');if(tgl)tgl.checked=false}
   else{if(tgl)tgl.checked=true}
   const fs=localStorage.getItem('loan_fs');
-  if(fs){document.documentElement.style.fontSize=fs+'px';document.querySelectorAll('.size-btn').forEach(b=>b.classList.toggle('active',Number(b.dataset.size)===Number(fs)))}
+  if(fs){setFontSize(Number(fs));}else{setFontSize(16);}
   renderLoan('personal');renderLoan('home');
 })();
 </script>
