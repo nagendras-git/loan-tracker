@@ -143,9 +143,13 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .pp-info{flex:1;min-width:0}
 .pp-amt{font-size:0.86rem;font-weight:700;color:var(--text1)}
 .pp-meta{font-size:0.68rem;color:var(--text3);margin-top:2px}
-.pp-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
-.pp-edit{background:var(--surface2);border:1px solid var(--border);color:var(--blue);font-size:0.7rem;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:6px;font-family:inherit}
-.pp-del{background:var(--red-bg);border:1px solid rgba(248,113,113,0.25);color:var(--red);font-size:0.7rem;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:6px;font-family:inherit}
+.pp-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.pp-edit{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:var(--surface2);border:1px solid var(--border);color:var(--blue);cursor:pointer;border-radius:8px;padding:0;transition:background 120ms}
+.pp-edit:active{background:var(--surface3)}
+.pp-edit svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pp-del{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:var(--red-bg);border:1px solid rgba(248,113,113,0.25);color:var(--red);cursor:pointer;border-radius:8px;padding:0;transition:background 120ms}
+.pp-del:active{background:rgba(248,113,113,0.2)}
+.pp-del svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .pp-edit-form{margin:0;padding:12px 14px;background:var(--surface2);border-top:1px solid var(--border2)}
 /* Font size */
 .fs-btn{padding:8px 4px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 150ms var(--ease)}
@@ -322,13 +326,16 @@ function renderResults(type){
   const ppSorted=[...d.partPayments].sort((a,b)=>a.month-b.month);
   const yearData=[];
   let yearP=0,yearI=0,newEmi=emi;
+  const ppBalanceMap={}; // id -> {balBefore, balAfter, actualAmt}
   for(let m=1;m<=tenure*2&&bal>0;m++){
     const intPart=bal*r,prinPart=Math.min(bal,newEmi-intPart);
     bal-=prinPart;totalPaid+=newEmi;totalInterest+=intPart;
     yearP+=prinPart;yearI+=intPart;months=m;
     ppSorted.filter(p=>p.month===m).forEach(p=>{
+      const balBefore=bal;
       const ppAmt=Math.min(p.amount,bal);
       bal-=ppAmt;totalPaid+=ppAmt;
+      ppBalanceMap[p.id]={balBefore,balAfter:Math.max(0,bal),actualAmt:ppAmt};
       if(p.strategy==='reduce-emi'&&bal>0){const rm=tenure-m;if(rm>0)newEmi=emiCalc(bal,annualRate,rm);}
     });
     if(m%12===0||bal<=0){yearData.push({year:Math.ceil(m/12),principal:yearP,interest:yearI,balance:Math.max(0,bal),emi:newEmi});yearP=0;yearI=0;}
@@ -355,7 +362,8 @@ function renderResults(type){
   if(interestSaved>0)html+=`<div class="result-row"><span class="result-row-label">Interest Saved</span><span class="result-row-val" style="color:var(--green)">${fmt(interestSaved)}</span></div>`;
   if(monthsSaved>0)html+=`<div class="result-row"><span class="result-row-label">Closes Early By</span><span class="result-row-val" style="color:var(--green)">${monthsSaved} months</span></div>`;
   if(newEmi!==emi)html+=`<div class="result-row"><span class="result-row-label">Revised EMI</span><span class="result-row-val" style="color:var(--green)">${fmtFull(newEmi)}</span></div>`;
-  html+=`<div class="result-row"><span class="result-row-label">Actual Tenure</span><span class="result-row-val">${months} months (${(months/12).toFixed(1)}y)</span></div>`;
+  html+=`<div class="result-row"><span class="result-row-label">Loan Tenure</span><span class="result-row-val">${tenure} months (${(tenure/12).toFixed(1)}y)</span></div>`;
+  if(hasPP&&monthsSaved>0)html+=`<div class="result-row"><span class="result-row-label">Payoff In</span><span class="result-row-val" style="color:var(--green)">${months} months (${(months/12).toFixed(1)}y)</span></div>`;
   html+=`</div>`;
 
   // Part Payments
@@ -367,14 +375,17 @@ function renderResults(type){
   if(hasPP){
     html+=`<div class="pp-list">`;
     d.partPayments.sort((a,b)=>a.month-b.month).forEach(pp=>{
+      const ppInfo=ppBalanceMap[pp.id];
+      const outstandingAfter=ppInfo?ppInfo.balAfter:null;
       html+=`<div class="pp-item">
         <div class="pp-info">
           <div class="pp-amt">${fmt(pp.amount)} <span style="color:var(--text3);font-weight:500">at month ${pp.month}</span></div>
-          <div class="pp-meta">${pp.strategy==='reduce-tenure'?'↓ Reduce tenure':'↓ Reduce EMI'}</div>
+          <div class="pp-meta">${pp.strategy==='reduce-tenure'?'↓ Reduce tenure':'↓ Reduce EMI'}${outstandingAfter!==null?` &nbsp;·&nbsp; Outstanding: <span style="color:var(--text1);font-weight:700">${fmt(outstandingAfter)}</span>`:''}
+          </div>
         </div>
         <div class="pp-actions">
-          <button class="pp-edit" onclick="editPP('${type}','${pp.id}')">Edit</button>
-          <button class="pp-del" onclick="removePP('${type}','${pp.id}')">Del</button>
+          <button class="pp-edit" onclick="editPP('${type}','${pp.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="pp-del" onclick="removePP('${type}','${pp.id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
       </div>
       <div class="pp-edit-form" id="pp-ef-${pp.id}" style="display:none">
