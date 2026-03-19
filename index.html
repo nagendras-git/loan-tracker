@@ -184,7 +184,7 @@ input[type=range].custom-range::-webkit-slider-runnable-track{background:transpa
 .cal-display{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface2);color:var(--text1);font-family:'Inter',sans-serif;font-size:1rem;font-weight:500;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color 150ms;user-select:none}
 .cal-display.empty{color:var(--text3)}
 .cal-display svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:0.6}
-.cal-popup{margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;animation:calIn 0.15s var(--ease) both}
+.cal-popup{margin-top:6px;width:260px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;animation:calIn 0.15s var(--ease) both}
 @keyframes calIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .cal-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--border2)}
 .cal-nav-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:background 120ms;font-size:0.82rem;flex-shrink:0;font-family:inherit}
@@ -435,7 +435,7 @@ function renderCalPopup(){
   for(let d=1;d<=daysInMonth;d++){
     const isToday=today.getDate()===d&&today.getMonth()===_lc.month&&today.getFullYear()===_lc.year;
     const isSel=selD&&selD.getDate()===d&&selD.getMonth()===_lc.month&&selD.getFullYear()===_lc.year;
-    cells+=`<div class="cal-day${isToday?' cal-today':''}${isSel?' cal-sel':''}" onclick="calPickDay(${d})">${d}</div>`;
+    cells+=`<div class="cal-day${isToday?' cal-today':''}${isSel?' cal-sel':''}" onclick="calPickDay(${d},event)">${d}</div>`;
   }
   // Next month lead
   const total=firstDay+daysInMonth;const rem=total%7===0?0:7-(total%7);
@@ -443,35 +443,37 @@ function renderCalPopup(){
   const dows=DAYS.map(d=>`<div class="cal-dow">${d}</div>`).join('');
   popup.innerHTML=`
     <div class="cal-nav">
-      <button class="cal-nav-btn" onclick="calShiftMonth(-1)">‹</button>
-      <span class="cal-yr-label" onclick="calToggleYears()">${MFULL[_lc.month]} ${_lc.year} ▾</span>
-      <button class="cal-nav-btn" onclick="calShiftMonth(1)">›</button>
+      <button class="cal-nav-btn" onclick="calShiftMonth(-1,event)">‹</button>
+      <span class="cal-yr-label" onclick="calToggleYears(event)">${MFULL[_lc.month]} ${_lc.year} ▾</span>
+      <button class="cal-nav-btn" onclick="calShiftMonth(1,event)">›</button>
     </div>
     <div class="cal-grid">${dows}${cells}</div>
-    <button class="cal-clear" onclick="calClearDate()">Clear date</button>`;
+    <button class="cal-clear" onclick="event.stopPropagation();calClearDate()">Clear date</button>`;
 }
 function renderCalYears(){
   const popup=document.getElementById(_lc.id+'-cal-popup');
   if(!popup)return;
   const cur=new Date().getFullYear();
   let html='';
-  for(let y=cur-3;y<=cur+10;y++)html+=`<div class="cal-yr-item${y===_lc.year?' sel':''}" onclick="calPickYear(${y})">${y}</div>`;
+  for(let y=cur-3;y<=cur+10;y++)html+=`<div class="cal-yr-item${y===_lc.year?' sel':''}" onclick="calPickYear(${y},event)">${y}</div>`;
   popup.innerHTML=`
     <div class="cal-nav">
-      <button class="cal-nav-btn" onclick="calToggleYears()">✕</button>
+      <button class="cal-nav-btn" onclick="calToggleYears(event)">✕</button>
       <span class="cal-yr-label">Select Year</span><span></span>
     </div>
     <div class="cal-yr-grid">${html}</div>`;
 }
-function calShiftMonth(dir){
+function calShiftMonth(dir,e){
+  if(e)e.stopPropagation();
   _lc.month+=dir;
   if(_lc.month<0){_lc.month=11;_lc.year--;}
   if(_lc.month>11){_lc.month=0;_lc.year++;}
   renderCalPopup();
 }
-function calToggleYears(){_lc.viewMode=_lc.viewMode==='years'?'days':'years';renderCalPopup();}
-function calPickYear(y){_lc.year=y;_lc.viewMode='days';renderCalPopup();}
-function calPickDay(d){
+function calToggleYears(e){if(e)e.stopPropagation();_lc.viewMode=_lc.viewMode==='years'?'days':'years';renderCalPopup();}
+function calPickYear(y,e){if(e)e.stopPropagation();_lc.year=y;_lc.viewMode='days';renderCalPopup();}
+function calPickDay(d,e){
+  if(e)e.stopPropagation();
   const dd=String(d).padStart(2,'0');
   const mm=String(_lc.month+1).padStart(2,'0');
   const val=dd+'-'+mm+'-'+_lc.year; // DD-MM-YYYY
