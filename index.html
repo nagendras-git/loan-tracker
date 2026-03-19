@@ -80,16 +80,17 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .result-row:last-child{border-bottom:none}
 .result-row-label{font-size:0.78rem;color:var(--text2)}
 .result-row-val{font-size:0.82rem;font-weight:700;color:var(--text1)}
+/* Amortization */
 .yr-table-wrap{margin-top:10px}
 .yr-toggle{display:flex;align-items:center;justify-content:center;gap:4px;background:none;border:none;color:var(--blue);font-size:0.72rem;font-weight:700;cursor:pointer;padding:8px 12px;font-family:inherit;width:100%}
 .yr-toggle svg{width:10px;height:10px;transition:transform 0.2s ease}
 .yr-body.closed{display:none}
-/* Amortization card rows */
 .yr-cards{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-top:4px}
-.yr-hdr{display:grid;grid-template-columns:2fr 2fr 2fr 2fr;background:var(--surface2);border-bottom:1px solid var(--border);padding:8px 12px;gap:4px}
+/* Year col narrow, 3 value cols equal */
+.yr-hdr{display:grid;grid-template-columns:36px 1fr 1fr 1fr;background:var(--surface2);border-bottom:1px solid var(--border);padding:8px 12px;gap:8px}
 .yr-hdr-cell{font-size:0.58rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;text-align:right}
 .yr-hdr-cell:first-child{text-align:left}
-.yr-row{display:grid;grid-template-columns:2fr 2fr 2fr 2fr;padding:11px 12px;gap:4px;border-bottom:1px solid var(--border2);align-items:center}
+.yr-row{display:grid;grid-template-columns:36px 1fr 1fr 1fr;padding:11px 12px;gap:8px;border-bottom:1px solid var(--border2);align-items:center}
 .yr-row:last-child{border-bottom:none}
 .yr-row:nth-child(even){background:var(--surface2)}
 .yr-cell{font-size:0.78rem;font-weight:600;color:var(--text1);text-align:right;white-space:nowrap}
@@ -104,8 +105,8 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .pp-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
 .pp-edit{background:var(--surface2);border:1px solid var(--border);color:var(--blue);font-size:0.7rem;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:6px;font-family:inherit}
 .pp-del{background:var(--red-bg);border:1px solid rgba(248,113,113,0.25);color:var(--red);font-size:0.7rem;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:6px;font-family:inherit}
-/* edit form */
 .pp-edit-form{margin:0;padding:12px 14px;background:var(--surface2);border-top:1px solid var(--border2)}
+/* Font size slider */
 .fs-btn{padding:8px 4px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 150ms var(--ease)}
 .fs-btn:active{transform:scale(0.93)}
 .fs-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
@@ -119,41 +120,36 @@ input[type=range].custom-range::-webkit-slider-runnable-track{background:transpa
 .btn{padding:10px 16px;border-radius:var(--r);font-size:0.88rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:opacity 0.15s}
 .btn-primary{background:var(--blue);color:#fff}
 .btn-ghost{background:none;border:1px solid var(--border);color:var(--text2)}
-/* ── Size picker ── */
-.size-picker{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
 .info-note{display:flex;align-items:flex-start;gap:5px;padding:10px 0 2px;margin-top:8px;border-top:1px solid var(--border2)}
 .info-note span{font-size:0.62rem;color:var(--text3);line-height:1.5}
 .radio-pills{display:flex;gap:6px;margin-bottom:13px}
 .radio-pill{flex:1;padding:9px 0;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface2);color:var(--text3);font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;transition:all 0.15s}
 .radio-pill.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-/* ── Settings ── */
+/* Settings */
 .toggle{position:relative;display:inline-block;width:44px;height:26px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0}
 .toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--surface3);border:1px solid var(--border);border-radius:99px;transition:0.2s}
 .toggle-slider::before{content:'';position:absolute;height:20px;width:20px;left:2px;bottom:2px;background:var(--text3);border-radius:50%;transition:0.2s}
 .toggle input:checked+.toggle-slider{background:var(--blue);border-color:var(--blue)}
 .toggle input:checked+.toggle-slider::before{transform:translateX(18px);background:#fff}
-.size-picker{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
-.size-btn{padding:10px 0;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface2);color:var(--text3);font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s}
-.size-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 </style>
 </head>
 <body data-theme="dark">
 <div class="top-header"><div class="hdr-title">Loan Tracker</div></div>
 
-<!-- ═══ PERSONAL LOAN ═══ -->
+<!-- PERSONAL LOAN -->
 <div class="page active" id="page-personal"><div class="container" style="padding-top:8px">
   <div class="card" id="pl-form-card"></div>
   <div id="pl-results-card"></div>
 </div></div>
 
-<!-- ═══ HOME LOAN ═══ -->
+<!-- HOME LOAN -->
 <div class="page" id="page-home"><div class="container" style="padding-top:8px">
   <div class="card" id="hl-form-card"></div>
   <div id="hl-results-card"></div>
 </div></div>
 
-<!-- ═══ SETTINGS ═══ -->
+<!-- SETTINGS -->
 <div class="page" id="page-settings"><div class="container" style="padding-top:8px">
   <div class="sec-hdr-card" onclick="toggleSec('sec-appear')"><div class="sec-hdr-left"><span class="sec-hdr-title">Appearance</span></div><span class="sec-caret" id="caret-sec-appear"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span></div>
   <div class="sec-body closed" id="sec-appear"><div class="card">
@@ -182,7 +178,7 @@ input[type=range].custom-range::-webkit-slider-runnable-track{background:transpa
   <div style="text-align:center;padding:16px 0;font-size:0.72rem;color:var(--text3)">Data stored on your device only 🔒</div>
 </div></div>
 
-<!-- ═══ TAB BAR ═══ -->
+<!-- TAB BAR -->
 <nav class="tab-bar"><div class="tab-bar-inner">
   <button class="tab-item active" onclick="nav('personal',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg></div><div class="tab-label">Personal</div></button>
   <button class="tab-item" onclick="nav('home',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="tab-label">Home</div></button>
@@ -216,7 +212,6 @@ function setFontSize(px){
   if(bar){bar.value=FS_IDX[px]??2;updateRangeFill(FS_IDX[px]??2);}
   document.querySelectorAll('.fs-btn').forEach(b=>b.classList.toggle('active',Number(b.dataset.size)===px));
 }
-
 function emiCalc(P,annualRate,months){const r=annualRate/12;if(r===0)return P/months;return P*r*Math.pow(1+r,months)/(Math.pow(1+r,months)-1)}
 
 function renderForm(type){
@@ -285,7 +280,7 @@ function renderResults(type){
   html+=`<div class="result-row"><span class="result-row-label">Actual Tenure</span><span class="result-row-val">${months} months (${(months/12).toFixed(1)}y)</span></div>`;
   html+=`</div>`;
 
-  // ── Part Payments ──
+  // Part Payments
   html+=`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border2)">`;
   html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
     <div style="font-size:0.82rem;font-weight:700;color:var(--text1)">Part Payments</div>
@@ -324,7 +319,7 @@ function renderResults(type){
   }
   html+=`</div>`;
 
-  // ── Add PP form ──
+  // Add PP form
   html+=`<div id="${prefix}-pp-form" style="display:none;margin-top:10px;padding:12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r)">
     <div class="fg"><label class="fl">Part Payment Amount (₹)</label><input class="fi" id="${prefix}-pp-amt" type="number" inputmode="numeric" placeholder="e.g. 100000"/></div>
     <div class="fg"><label class="fl">At Month Number</label><input class="fi" id="${prefix}-pp-month" type="number" inputmode="numeric" placeholder="e.g. 12"/></div>
@@ -339,7 +334,7 @@ function renderResults(type){
     </div>
   </div>`;
 
-  // ── Amortization (card rows instead of table) ──
+  // Amortization card rows
   html+=`<div class="yr-table-wrap">
     <button class="yr-toggle" onclick="toggleYr(this,'${prefix}-tb')">
       <span>Amortization Schedule</span>
@@ -348,7 +343,7 @@ function renderResults(type){
     <div id="${prefix}-tb" class="yr-body closed">
       <div class="yr-cards">
         <div class="yr-hdr">
-          <div class="yr-hdr-cell">Year</div>
+          <div class="yr-hdr-cell">Yr</div>
           <div class="yr-hdr-cell">Principal</div>
           <div class="yr-hdr-cell">Interest</div>
           <div class="yr-hdr-cell">Balance</div>
@@ -386,7 +381,6 @@ function addPP(type,prefix){
 }
 function removePP(type,id){data[type].partPayments=data[type].partPayments.filter(p=>p.id!==id);save();renderResults(type);}
 function editPP(type,id){
-  // Close any open edit forms first
   document.querySelectorAll('.pp-edit-form').forEach(el=>el.style.display='none');
   const ef=document.getElementById('pp-ef-'+id);
   if(ef)ef.style.display='';
@@ -408,7 +402,6 @@ function saveEditPP(type,id){
   save();renderResults(type);
 }
 
-// Init
 (function(){
   load();
   const t=localStorage.getItem('loan_theme'),tgl=document.getElementById('theme-toggle');
