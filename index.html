@@ -83,46 +83,29 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .yr-table-wrap{margin-top:10px}
 .yr-toggle{display:flex;align-items:center;justify-content:center;gap:4px;background:none;border:none;color:var(--blue);font-size:0.72rem;font-weight:700;cursor:pointer;padding:8px 12px;font-family:inherit;width:100%}
 .yr-toggle svg{width:10px;height:10px;transition:transform 0.2s ease}
-.yr-table-container{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-top:4px}
-.yr-table{width:100%;border-collapse:collapse;table-layout:fixed}
-.yr-table thead tr{background:var(--surface2)}
-.yr-table th{font-size:0.58rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;padding:9px 6px;text-align:right;border-bottom:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.yr-table th:first-child{text-align:left;padding-left:10px;width:14%}
-.yr-table th:nth-child(2){width:22%}
-.yr-table th:nth-child(3){width:22%}
-.yr-table th:nth-child(4){width:18%}
-.yr-table th:last-child{width:24%;padding-right:10px}
-.yr-table tbody tr{border-bottom:1px solid var(--border2)}
-.yr-table tbody tr:last-child{border-bottom:none}
-.yr-table tbody tr:nth-child(even){background:var(--surface2)}
-.yr-table td{font-size:0.74rem;font-weight:600;color:var(--text1);padding:9px 6px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.yr-table td:first-child{color:var(--text3);font-weight:700;text-align:left;padding-left:10px}
-.yr-table td:last-child{padding-right:10px}
 .yr-body.closed{display:none}
-.info-note{display:flex;align-items:flex-start;gap:5px;padding:10px 0 2px;margin-top:8px;border-top:1px solid var(--border2)}
-.info-note span{font-size:0.62rem;color:var(--text3);line-height:1.5}
-/* ── Part Payment ── */
-.pp-list{margin-top:10px}
-.pp-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border2)}
+/* Amortization card rows */
+.yr-cards{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-top:4px}
+.yr-hdr{display:grid;grid-template-columns:2fr 2fr 2fr 2fr;background:var(--surface2);border-bottom:1px solid var(--border);padding:8px 12px;gap:4px}
+.yr-hdr-cell{font-size:0.58rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;text-align:right}
+.yr-hdr-cell:first-child{text-align:left}
+.yr-row{display:grid;grid-template-columns:2fr 2fr 2fr 2fr;padding:11px 12px;gap:4px;border-bottom:1px solid var(--border2);align-items:center}
+.yr-row:last-child{border-bottom:none}
+.yr-row:nth-child(even){background:var(--surface2)}
+.yr-cell{font-size:0.78rem;font-weight:600;color:var(--text1);text-align:right;white-space:nowrap}
+.yr-cell:first-child{color:var(--text3);font-weight:700;text-align:left;font-size:0.82rem}
+/* Part payment rows */
+.pp-list{margin-top:4px;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.pp-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border2);background:transparent}
 .pp-item:last-child{border-bottom:none}
 .pp-info{flex:1;min-width:0}
-.pp-amt{font-size:0.82rem;font-weight:700;color:var(--text1)}
-.pp-meta{font-size:0.65rem;color:var(--text3)}
-.pp-del{background:none;border:none;color:var(--red);font-size:0.72rem;font-weight:700;cursor:pointer;padding:4px 8px;font-family:inherit;opacity:0.7}
-.btn{padding:10px 16px;border-radius:var(--r);font-size:0.88rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:opacity 0.15s}
-.btn-primary{background:var(--blue);color:#fff}
-.btn-ghost{background:none;border:1px solid var(--border);color:var(--text2)}
-/* ── Radio Pills ── */
-.radio-pills{display:flex;gap:6px;margin-bottom:13px}
-.radio-pill{flex:1;padding:9px 0;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface2);color:var(--text3);font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;transition:all 0.15s}
-.radio-pill.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-/* ── Settings ── */
-.toggle{position:relative;display:inline-block;width:44px;height:26px;flex-shrink:0}
-.toggle input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--surface3);border:1px solid var(--border);border-radius:99px;transition:0.2s}
-.toggle-slider::before{content:'';position:absolute;height:20px;width:20px;left:2px;bottom:2px;background:var(--text3);border-radius:50%;transition:0.2s}
-.toggle input:checked+.toggle-slider{background:var(--blue);border-color:var(--blue)}
-.toggle input:checked+.toggle-slider::before{transform:translateX(18px);background:#fff}
+.pp-amt{font-size:0.86rem;font-weight:700;color:var(--text1)}
+.pp-meta{font-size:0.68rem;color:var(--text3);margin-top:2px}
+.pp-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.pp-edit{background:var(--surface2);border:1px solid var(--border);color:var(--blue);font-size:0.7rem;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:6px;font-family:inherit}
+.pp-del{background:var(--red-bg);border:1px solid rgba(248,113,113,0.25);color:var(--red);font-size:0.7rem;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:6px;font-family:inherit}
+/* edit form */
+.pp-edit-form{margin:0;padding:12px 14px;background:var(--surface2);border-top:1px solid var(--border2)}
 .fs-btn{padding:8px 4px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 150ms var(--ease)}
 .fs-btn:active{transform:scale(0.93)}
 .fs-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
@@ -133,6 +116,26 @@ input[type=range].custom-range{position:relative;width:100%;height:22px;-webkit-
 input[type=range].custom-range::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:none;box-shadow:0 1px 6px rgba(0,0,0,.35);transition:transform .1s;margin-top:-9px}
 input[type=range].custom-range:active::-webkit-slider-thumb{transform:scale(1.15)}
 input[type=range].custom-range::-webkit-slider-runnable-track{background:transparent;height:4px}
+.btn{padding:10px 16px;border-radius:var(--r);font-size:0.88rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:opacity 0.15s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--text2)}
+/* ── Size picker ── */
+.size-picker{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+.info-note{display:flex;align-items:flex-start;gap:5px;padding:10px 0 2px;margin-top:8px;border-top:1px solid var(--border2)}
+.info-note span{font-size:0.62rem;color:var(--text3);line-height:1.5}
+.radio-pills{display:flex;gap:6px;margin-bottom:13px}
+.radio-pill{flex:1;padding:9px 0;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface2);color:var(--text3);font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;transition:all 0.15s}
+.radio-pill.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+/* ── Settings ── */
+.toggle{position:relative;display:inline-block;width:44px;height:26px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--surface3);border:1px solid var(--border);border-radius:99px;transition:0.2s}
+.toggle-slider::before{content:'';position:absolute;height:20px;width:20px;left:2px;bottom:2px;background:var(--text3);border-radius:50%;transition:0.2s}
+.toggle input:checked+.toggle-slider{background:var(--blue);border-color:var(--blue)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(18px);background:#fff}
+.size-picker{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+.size-btn{padding:10px 0;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface2);color:var(--text3);font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.size-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 </style>
 </head>
 <body data-theme="dark">
@@ -240,6 +243,7 @@ function onField(type,field,el){
   save();renderResults(type);
 }
 function renderLoan(type){renderForm(type);renderResults(type);}
+
 function renderResults(type){
   const d=data[type];
   const P=Number(d.amount||0),annualRate=Number(d.rate||0)/100,tenure=Number(d.tenure||0);
@@ -268,6 +272,7 @@ function renderResults(type){
   }
   if(yearP>0||yearI>0)yearData.push({year:yearData.length+1,principal:yearP,interest:yearI,balance:0,emi:newEmi});
   const interestSaved=interestNopp-totalInterest,monthsSaved=tenure-months;
+
   let html=`<div class="card" style="margin-top:0">`;
   html+=`<div class="result-card"><div class="result-label">Monthly EMI</div><div class="result-val">${fmt(emi)}</div><div class="result-sub">for ${tenure} months (${(tenure/12).toFixed(1)} years)</div></div>`;
   html+=`<div style="margin-top:8px">`;
@@ -279,11 +284,47 @@ function renderResults(type){
   if(newEmi!==emi)html+=`<div class="result-row"><span class="result-row-label">Revised EMI</span><span class="result-row-val" style="color:var(--green)">${fmt(newEmi)}</span></div>`;
   html+=`<div class="result-row"><span class="result-row-label">Actual Tenure</span><span class="result-row-val">${months} months (${(months/12).toFixed(1)}y)</span></div>`;
   html+=`</div>`;
+
+  // ── Part Payments ──
   html+=`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border2)">`;
-  html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:0.72rem;font-weight:700;color:var(--text1)">Part Payments</div><button class="btn btn-ghost" style="padding:6px 12px;font-size:0.72rem" onclick="showAddPP('${type}')">Add</button></div>`;
-  if(d.partPayments.length){html+=`<div class="pp-list">${d.partPayments.sort((a,b)=>a.month-b.month).map(pp=>`<div class="pp-item"><div class="pp-info"><div class="pp-amt">${fmt(pp.amount)} at month ${pp.month}</div><div class="pp-meta">${pp.strategy==='reduce-tenure'?'Reduce tenure':'Reduce EMI'}</div></div><button class="pp-del" onclick="removePP('${type}','${pp.id}')">✕</button></div>`).join('')}</div>`;}
-  else{html+=`<div style="font-size:0.72rem;color:var(--text3);padding:8px 0">No part payments added yet.</div>`;}
+  html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="font-size:0.82rem;font-weight:700;color:var(--text1)">Part Payments</div>
+    <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.72rem" onclick="showAddPP('${type}')">Add</button>
+  </div>`;
+  if(d.partPayments.length){
+    html+=`<div class="pp-list">`;
+    d.partPayments.sort((a,b)=>a.month-b.month).forEach(pp=>{
+      html+=`<div class="pp-item">
+        <div class="pp-info">
+          <div class="pp-amt">${fmt(pp.amount)} <span style="color:var(--text3);font-weight:500">at month ${pp.month}</span></div>
+          <div class="pp-meta">${pp.strategy==='reduce-tenure'?'↓ Reduce tenure':'↓ Reduce EMI'}</div>
+        </div>
+        <div class="pp-actions">
+          <button class="pp-edit" onclick="editPP('${type}','${pp.id}')">Edit</button>
+          <button class="pp-del" onclick="removePP('${type}','${pp.id}')">Del</button>
+        </div>
+      </div>
+      <div class="pp-edit-form" id="pp-ef-${pp.id}" style="display:none">
+        <div class="fg"><label class="fl">Amount (₹)</label><input class="fi" id="pp-ea-${pp.id}" type="number" inputmode="numeric" value="${pp.amount}"/></div>
+        <div class="fg"><label class="fl">At Month</label><input class="fi" id="pp-em-${pp.id}" type="number" inputmode="numeric" value="${pp.month}"/></div>
+        <div class="fl" style="margin-bottom:6px">After Part Payment</div>
+        <div class="radio-pills">
+          <button class="radio-pill ${pp.strategy==='reduce-tenure'?'active':''}" id="pp-es-ten-${pp.id}" onclick="setEditStrategy('${pp.id}','reduce-tenure')">Reduce Tenure</button>
+          <button class="radio-pill ${pp.strategy==='reduce-emi'?'active':''}" id="pp-es-emi-${pp.id}" onclick="setEditStrategy('${pp.id}','reduce-emi')">Reduce EMI</button>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button class="btn btn-ghost" style="padding:7px 14px;font-size:0.78rem" onclick="cancelEditPP('${pp.id}')">Cancel</button>
+          <button class="btn btn-primary" style="padding:7px 14px;font-size:0.78rem" onclick="saveEditPP('${type}','${pp.id}')">Save</button>
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
+  } else {
+    html+=`<div style="font-size:0.72rem;color:var(--text3);padding:8px 0">No part payments added yet.</div>`;
+  }
   html+=`</div>`;
+
+  // ── Add PP form ──
   html+=`<div id="${prefix}-pp-form" style="display:none;margin-top:10px;padding:12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r)">
     <div class="fg"><label class="fl">Part Payment Amount (₹)</label><input class="fi" id="${prefix}-pp-amt" type="number" inputmode="numeric" placeholder="e.g. 100000"/></div>
     <div class="fg"><label class="fl">At Month Number</label><input class="fi" id="${prefix}-pp-month" type="number" inputmode="numeric" placeholder="e.g. 12"/></div>
@@ -292,16 +333,42 @@ function renderResults(type){
       <button class="radio-pill active" id="${prefix}-pp-str-tenure" onclick="setPPStrategy('${prefix}','reduce-tenure')">Reduce Tenure</button>
       <button class="radio-pill" id="${prefix}-pp-str-emi" onclick="setPPStrategy('${prefix}','reduce-emi')">Reduce EMI</button>
     </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
       <button class="btn btn-ghost" style="padding:8px 14px;font-size:0.78rem" onclick="hideAddPP('${prefix}')">Cancel</button>
       <button class="btn btn-primary" style="padding:8px 14px;font-size:0.78rem" onclick="addPP('${type}','${prefix}')">Add</button>
     </div>
   </div>`;
-  html+=`<div class="yr-table-wrap"><button class="yr-toggle" onclick="toggleYr(this,'${prefix}-tb')"><span>Amortization Schedule</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div id="${prefix}-tb" class="yr-body closed"><div class="yr-table-container"><table class="yr-table"><thead><tr><th>Year</th><th>Principal</th><th>Interest</th><th>EMI</th><th>Balance</th></tr></thead><tbody>${yearData.map(y=>`<tr><td>${y.year}</td><td>${fmt(y.principal)}</td><td style="color:var(--red)">${fmt(y.interest)}</td><td>${fmt(y.emi)}</td><td>${fmt(y.balance)}</td></tr>`).join('')}</tbody></table></div></div></div>`;
+
+  // ── Amortization (card rows instead of table) ──
+  html+=`<div class="yr-table-wrap">
+    <button class="yr-toggle" onclick="toggleYr(this,'${prefix}-tb')">
+      <span>Amortization Schedule</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="${prefix}-tb" class="yr-body closed">
+      <div class="yr-cards">
+        <div class="yr-hdr">
+          <div class="yr-hdr-cell">Year</div>
+          <div class="yr-hdr-cell">Principal</div>
+          <div class="yr-hdr-cell">Interest</div>
+          <div class="yr-hdr-cell">Balance</div>
+        </div>
+        ${yearData.map(y=>`
+        <div class="yr-row">
+          <div class="yr-cell">${y.year}</div>
+          <div class="yr-cell">${fmt(y.principal)}</div>
+          <div class="yr-cell" style="color:var(--red)">${fmt(y.interest)}</div>
+          <div class="yr-cell">${fmt(y.balance)}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+
   html+=`<div class="info-note"><span style="opacity:0.5">ⓘ</span><span>Part payments reduce outstanding principal. Choose "Reduce Tenure" to close loan early, or "Reduce EMI" to lower monthly burden.</span></div>`;
   html+=`</div>`;
   rc.innerHTML=html;
 }
+
 function showAddPP(type){const p=type==='personal'?'pl':'hl';document.getElementById(p+'-pp-form').style.display=''}
 function hideAddPP(prefix){document.getElementById(prefix+'-pp-form').style.display='none'}
 function setPPStrategy(prefix,strategy){
@@ -318,6 +385,28 @@ function addPP(type,prefix){
   save();renderResults(type);
 }
 function removePP(type,id){data[type].partPayments=data[type].partPayments.filter(p=>p.id!==id);save();renderResults(type);}
+function editPP(type,id){
+  // Close any open edit forms first
+  document.querySelectorAll('.pp-edit-form').forEach(el=>el.style.display='none');
+  const ef=document.getElementById('pp-ef-'+id);
+  if(ef)ef.style.display='';
+}
+function cancelEditPP(id){const ef=document.getElementById('pp-ef-'+id);if(ef)ef.style.display='none';}
+function setEditStrategy(id,strategy){
+  document.getElementById('pp-es-ten-'+id)?.classList.toggle('active',strategy==='reduce-tenure');
+  document.getElementById('pp-es-emi-'+id)?.classList.toggle('active',strategy==='reduce-emi');
+  const ef=document.getElementById('pp-ef-'+id);if(ef)ef.dataset.strategy=strategy;
+}
+function saveEditPP(type,id){
+  const amt=Number(document.getElementById('pp-ea-'+id)?.value||0);
+  const month=Number(document.getElementById('pp-em-'+id)?.value||0);
+  const ef=document.getElementById('pp-ef-'+id);
+  const strategy=ef?.dataset?.strategy||(data[type].partPayments.find(p=>p.id===id)?.strategy)||'reduce-tenure';
+  if(!amt||!month)return;
+  const pp=data[type].partPayments.find(p=>p.id===id);
+  if(pp){pp.amount=amt;pp.month=month;pp.strategy=strategy;}
+  save();renderResults(type);
+}
 
 // Init
 (function(){
