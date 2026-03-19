@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
+<title>Loan Tracker</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Loan Tracker">
+<meta name="theme-color" content="#0d0d10" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0d0d10;--surface:#141417;--surface2:#1e1e25;--surface3:#26262f;--border:#4a4a60;--border2:#383850;--scrim:rgba(0,0,0,0.72);--text1:#f4f4fa;--text2:#c8c8e0;--text3:#b0b0cc;--green:#22c55e;--green-bg:rgba(34,197,94,0.1);--red:#f87171;--red-bg:rgba(248,113,113,0.1);--blue:#3B82F6;--accent2:rgba(255,255,255,0.06);--nav-h:60px;--safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);--r:12px;--r-lg:16px;--r-xl:20px;--ease:cubic-bezier(0.16,1,0.3,1);--spring:cubic-bezier(0.34,1.56,0.64,1)}
+[data-theme="light"]{--bg:#f2f2f7;--surface:#ffffff;--surface2:#f5f5fa;--surface3:#e8e8f0;--border:#c8c8d8;--border2:#d8d8e4;--text1:#1a1a25;--text2:#505068;--text3:#808098;--accent2:rgba(0,0,0,0.04);--scrim:rgba(0,0,0,0.45);--blue:#2563EB;--green:#16a34a;--green-bg:rgba(22,163,74,0.08);--red:#dc2626;--red-bg:rgba(220,38,38,0.06)}
+[data-theme="light"] .top-header{background:var(--bg);border-bottom:1px solid var(--border)}
+[data-theme="light"] .tab-bar{background:var(--bg);border-top:1px solid var(--border)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;overflow-x:hidden;font-size:16px;background:var(--bg)}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text1);min-height:100vh;max-width:100vw;padding-bottom:calc(var(--nav-h) + var(--safe-b) + 4px);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::-webkit-scrollbar{width:0;height:0}
+.top-header{position:sticky;top:0;z-index:90;background:rgba(13,13,16,0.95);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding:calc(12px + var(--safe-t)) 20px 10px}
+.hdr-title{font-size:1.1rem;font-weight:800}
+.tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;justify-content:center;height:var(--nav-h);padding-bottom:var(--safe-b);background:rgba(13,13,16,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border2)}
+.tab-bar-inner{width:100%;max-width:480px;display:flex;align-items:flex-start;justify-content:space-around}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:8px 0 0;background:none;border:none;color:var(--text3);transition:color 120ms;font-family:inherit}
+.tab-item.active{color:var(--blue)}
+.tab-icon{height:26px;display:flex;align-items:center;justify-content:center}
+.tab-icon svg{width:1.3rem;height:1.3rem;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:0.35;transition:opacity 200ms}
+.tab-item.active .tab-icon svg{opacity:1;stroke:var(--blue)}
+.tab-label{font-size:0.68rem;font-weight:700;letter-spacing:0.2px}
+.container{padding:0 16px}.page{display:none}.page.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:14px 16px;margin-bottom:10px}
+.sec-hdr-card{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;user-select:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:8px}
+.sec-hdr-card:active{background:var(--surface3)}
+.sec-hdr-left{display:flex;align-items:center;gap:8px;min-width:0}
+.sec-hdr-title{font-size:0.86rem;font-weight:600;color:var(--text1);display:inline-flex;align-items:center;gap:8px}
+.sec-hdr-title svg{opacity:0.45;flex-shrink:0}
+.sec-caret{color:var(--text3);transition:transform 0.25s var(--ease);display:flex;align-items:center}
+.sec-caret svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.sec-caret.open{transform:rotate(180deg)}
+.sec-body{overflow:hidden;max-height:5000px;transition:max-height 0.32s var(--ease),opacity 0.2s ease;opacity:1}
+.sec-body.closed{max-height:0;opacity:0;pointer-events:none}
+.fg{margin-bottom:13px}
+.fl{font-size:0.68rem;font-weight:700;color:var(--text3);letter-spacing:0;margin-bottom:5px;display:block}
+.fl span{font-weight:400;letter-spacing:0;color:var(--text3);font-size:0.86rem}
+.fi{width:100%;max-width:100%;font-size:1rem !important;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);font-family:'Inter',sans-serif;font-weight:500;background:var(--surface2);color:var(--text1);outline:none;-webkit-appearance:none;transition:border-color 150ms,box-shadow 150ms;box-sizing:border-box}
+.fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,0.12);background:var(--surface)}
+.fi::placeholder{color:var(--text3)}
+.fi-sel{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a4a60' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;cursor:pointer}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-items:start}
+@media(max-width:340px){.form-row2{grid-template-columns:1fr}}
+.form-row2 .fg{display:flex;flex-direction:column}.form-row2 .fg .fi{flex:1;min-height:44px}
+.result-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;margin-top:10px}
+.result-label{font-size:0.62rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:3px}
+.result-val{font-size:1.45rem;font-weight:800;color:var(--text1)}
+.result-sub{font-size:0.72rem;color:var(--text3);margin-top:2px}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border2)}
+.result-row:last-child{border-bottom:none}
+.result-row-label{font-size:0.78rem;color:var(--text2)}
+.result-row-val{font-size:0.82rem;font-weight:700;color:var(--text1)}
+.yr-table-wrap{margin-top:10px}
+.yr-toggle{display:flex;align-items:center;justify-content:center;gap:4px;background:none;border:none;color:var(--blue);font-size:0.72rem;font-weight:700;cursor:pointer;padding:8px 12px;font-family:inherit;width:100%}
+.yr-toggle svg{width:10px;height:10px;transition:transform 0.2s ease}
+.yr-table{width:100%;border-collapse:collapse}
+.yr-table th{font-size:0.58rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;padding:8px 4px;text-align:right;border-bottom:1px solid var(--border2)}
+.yr-table th:first-child{text-align:left}
+.yr-table td{font-size:0.74rem;font-weight:600;color:var(--text1);padding:6px 4px;text-align:right;border-bottom:1px solid var(--border2)}
+.yr-table td:first-child{color:var(--text3);font-weight:500;text-align:left}
+.yr-body.closed{display:none}
+.info-note{display:flex;align-items:flex-start;gap:5px;padding:10px 0 2px;margin-top:8px;border-top:1px solid var(--border2)}
+.info-note span{font-size:0.62rem;color:var(--text3);line-height:1.5}
+/* ── Part Payment ── */
+.pp-list{margin-top:10px}
+.pp-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border2)}
+.pp-item:last-child{border-bottom:none}
+.pp-info{flex:1;min-width:0}
+.pp-amt{font-size:0.82rem;font-weight:700;color:var(--text1)}
+.pp-meta{font-size:0.65rem;color:var(--text3)}
+.pp-del{background:none;border:none;color:var(--red);font-size:0.72rem;font-weight:700;cursor:pointer;padding:4px 8px;font-family:inherit;opacity:0.7}
+.btn{padding:10px 16px;border-radius:var(--r);font-size:0.88rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:opacity 0.15s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--text2)}
+/* ── Radio Pills ── */
+.radio-pills{display:flex;gap:6px;margin-bottom:13px}
+.radio-pill{flex:1;padding:9px 0;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface2);color:var(--text3);font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;transition:all 0.15s}
+.radio-pill.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+/* ── Settings ── */
+.toggle{position:relative;display:inline-block;width:44px;height:26px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--surface3);border:1px solid var(--border);border-radius:99px;transition:0.2s}
+.toggle-slider::before{content:'';position:absolute;height:20px;width:20px;left:2px;bottom:2px;background:var(--text3);border-radius:50%;transition:0.2s}
+.toggle input:checked+.toggle-slider{background:var(--blue);border-color:var(--blue)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(18px);background:#fff}
+.size-picker{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+.size-btn{padding:10px 0;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface2);color:var(--text3);font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.size-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+</style>
+</head>
+<body data-theme="dark">
+<div class="top-header"><div class="hdr-title">Loan Tracker</div></div>
+
+<!-- ═══ PERSONAL LOAN ═══ -->
+<div class="page active" id="page-personal"><div class="container" style="padding-top:8px">
+  <div class="card" id="pl-card"></div>
+</div></div>
+
+<!-- ═══ HOME LOAN ═══ -->
+<div class="page" id="page-home"><div class="container" style="padding-top:8px">
+  <div class="card" id="hl-card"></div>
+</div></div>
+
+<!-- ═══ SETTINGS ═══ -->
+<div class="page" id="page-settings"><div class="container" style="padding-top:8px">
+  <div class="sec-hdr-card" onclick="toggleSec('sec-appear')"><div class="sec-hdr-left"><span class="sec-hdr-title">Appearance</span></div><span class="sec-caret" id="caret-sec-appear"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+  <div class="sec-body closed" id="sec-appear"><div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0 10px;border-bottom:1px solid var(--border2);margin-bottom:10px"><div style="display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span style="font-size:0.88rem;font-weight:600">Dark Mode</span></div><label class="toggle"><input type="checkbox" id="theme-toggle" onchange="toggleTheme(this.checked)"/><span class="toggle-slider"></span></label></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg><span style="font-size:0.88rem;font-weight:600">Text Size</span></div>
+    <div class="size-picker"><button class="size-btn" onclick="setSize(15)" data-size="15">S</button><button class="size-btn active" onclick="setSize(16)" data-size="16">M</button><button class="size-btn" onclick="setSize(17)" data-size="17">L</button><button class="size-btn" onclick="setSize(18)" data-size="18">XL</button></div>
+  </div></div>
+  <div style="text-align:center;padding:16px 0;font-size:0.72rem;color:var(--text3)">Data stored on your device only 🔒</div>
+</div></div>
+
+<!-- ═══ TAB BAR ═══ -->
+<nav class="tab-bar"><div class="tab-bar-inner">
+  <button class="tab-item active" onclick="nav('personal',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg></div><div class="tab-label">Personal</div></button>
+  <button class="tab-item" onclick="nav('home',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="tab-label">Home</div></button>
+  <button class="tab-item" onclick="nav('settings',this)"><div class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div><div class="tab-label">Settings</div></button>
+</div></nav>
+
+<script>
+const LS_KEY='loan_tracker_v1';
+let data={personal:{amount:500000,rate:12,tenure:36,partPayments:[]},home:{amount:5000000,rate:8.5,tenure:240,partPayments:[]}};
+
+function fmt(n){const v=Math.abs(Number(n)||0);let s='';if(v>=10000000)s=(v/10000000).toFixed(2)+'Cr';else if(v>=100000)s=(v/100000).toFixed(2)+'L';else if(v>=1000)s=(v/1000).toFixed(1)+'K';else s=v.toFixed(0);return(n<0?'-':'')+'₹'+s}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function save(){localStorage.setItem(LS_KEY,JSON.stringify(data))}
+function load(){try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d){data=d}}catch(e){}}
+function nav(p,btn){document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active')}
+function toggleSec(id){const el=document.getElementById(id);if(!el)return;const c=el.classList.toggle('closed');document.getElementById('caret-'+id)?.classList.toggle('open',!c)}
+function toggleYr(btn,id){const b=document.getElementById(id);b.classList.toggle('closed');const o=!b.classList.contains('closed');const t=btn.querySelector('span').textContent.replace('Hide ','');btn.querySelector('span').textContent=o?'Hide '+t:t;btn.querySelector('svg').style.transform=o?'rotate(180deg)':''}
+function toggleTheme(d){document.body.setAttribute('data-theme',d?'dark':'light');localStorage.setItem('loan_theme',d?'dark':'light')}
+function setSize(v){document.documentElement.style.fontSize=v+'px';document.querySelectorAll('.size-btn').forEach(b=>b.classList.toggle('active',Number(b.dataset.size)===v));localStorage.setItem('loan_fs',v)}
+
+function emiCalc(P,annualRate,months){const r=annualRate/12;if(r===0)return P/months;return P*r*Math.pow(1+r,months)/(Math.pow(1+r,months)-1)}
+
+function renderLoan(type){
+  const d=data[type];
+  const P=Number(d.amount||0),annualRate=Number(d.rate||0)/100,tenure=Number(d.tenure||0);
+  const prefix=type==='personal'?'pl':'hl';
+  const card=document.getElementById(prefix+'-card');
+  if(!P||!annualRate||!tenure){card.innerHTML=buildForm(type);return}
+
+  const r=annualRate/12;
+  const emi=emiCalc(P,annualRate/12,tenure);
+  const totalNopp=emi*tenure;
+  const interestNopp=totalNopp-P;
+
+  // Simulate with part payments
+  let bal=P,months=0,totalPaid=0,totalInterest=0;
+  const ppSorted=[...d.partPayments].sort((a,b)=>a.month-b.month);
+  const yearData=[];
+  let yearP=0,yearI=0,currentEmi=emi,newEmi=emi;
+
+  for(let m=1;m<=tenure*2&&bal>0;m++){
+    const intPart=bal*r;
+    const prinPart=Math.min(bal,newEmi-intPart);
+    bal-=prinPart;totalPaid+=newEmi;totalInterest+=intPart;
+    yearP+=prinPart;yearI+=intPart;months=m;
+
+    // Check part payments at this month
+    const pp=ppSorted.filter(p=>p.month===m);
+    pp.forEach(p=>{
+      const ppAmt=Math.min(p.amount,bal);
+      bal-=ppAmt;totalPaid+=ppAmt;
+      if(p.strategy==='reduce-emi'&&bal>0){
+        const remMonths=tenure-m;
+        if(remMonths>0)newEmi=emiCalc(bal,r,remMonths);
+      }
+    });
+
+    if(m%12===0||bal<=0){
+      yearData.push({year:Math.ceil(m/12),principal:yearP,interest:yearI,balance:Math.max(0,bal),emi:newEmi});
+      yearP=0;yearI=0;
+    }
+    if(bal<=0)break;
+  }
+  if(yearP>0||yearI>0)yearData.push({year:yearData.length+1,principal:yearP,interest:yearI,balance:0,emi:newEmi});
+
+  const interestSaved=interestNopp-totalInterest;
+  const monthsSaved=tenure-months;
+
+  let html=buildForm(type);
+  html+=`<div class="result-card"><div class="result-label">Monthly EMI</div><div class="result-val">${fmt(emi)}</div><div class="result-sub">for ${tenure} months (${(tenure/12).toFixed(1)} years)</div></div>`;
+  html+=`<div style="margin-top:8px">`;
+  html+=`<div class="result-row"><span class="result-row-label">Total Payable</span><span class="result-row-val">${fmt(totalPaid)}</span></div>`;
+  html+=`<div class="result-row"><span class="result-row-label">Total Interest</span><span class="result-row-val" style="color:var(--red)">${fmt(totalInterest)}</span></div>`;
+  html+=`<div class="result-row"><span class="result-row-label">Interest without Part Payment</span><span class="result-row-val">${fmt(interestNopp)}</span></div>`;
+  if(interestSaved>0)html+=`<div class="result-row"><span class="result-row-label">Interest Saved</span><span class="result-row-val" style="color:var(--green)">${fmt(interestSaved)}</span></div>`;
+  if(monthsSaved>0)html+=`<div class="result-row"><span class="result-row-label">Closes Early By</span><span class="result-row-val" style="color:var(--green)">${monthsSaved} months</span></div>`;
+  if(newEmi!==emi)html+=`<div class="result-row"><span class="result-row-label">Revised EMI</span><span class="result-row-val" style="color:var(--green)">${fmt(newEmi)}</span></div>`;
+  html+=`<div class="result-row"><span class="result-row-label">Actual Tenure</span><span class="result-row-val">${months} months (${(months/12).toFixed(1)}y)</span></div>`;
+  html+=`</div>`;
+
+  // Part payments section
+  html+=`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border2)">`;
+  html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:0.72rem;font-weight:700;color:var(--text1)">Part Payments</div><button class="btn btn-ghost" style="padding:6px 12px;font-size:0.72rem" onclick="showAddPP('${type}')">+ Add</button></div>`;
+  if(d.partPayments.length){
+    html+=`<div class="pp-list">${d.partPayments.sort((a,b)=>a.month-b.month).map(pp=>`<div class="pp-item"><div class="pp-info"><div class="pp-amt">${fmt(pp.amount)} at month ${pp.month}</div><div class="pp-meta">${pp.strategy==='reduce-tenure'?'Reduce tenure':'Reduce EMI'}</div></div><button class="pp-del" onclick="removePP('${type}','${pp.id}')">✕</button></div>`).join('')}</div>`;
+  } else {
+    html+=`<div style="font-size:0.72rem;color:var(--text3);padding:8px 0">No part payments added yet.</div>`;
+  }
+  html+=`</div>`;
+
+  // Add PP form (hidden by default)
+  html+=`<div id="${prefix}-pp-form" style="display:none;margin-top:10px;padding:12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r)">
+    <div class="fg"><label class="fl">Part Payment Amount (₹)</label><input class="fi" id="${prefix}-pp-amt" type="number" inputmode="numeric" placeholder="e.g. 100000"/></div>
+    <div class="fg"><label class="fl">At Month Number</label><input class="fi" id="${prefix}-pp-month" type="number" placeholder="e.g. 12"/></div>
+    <div class="fl" style="margin-bottom:6px">After Part Payment</div>
+    <div class="radio-pills">
+      <button class="radio-pill active" id="${prefix}-pp-str-tenure" onclick="setPPStrategy('${prefix}','reduce-tenure')">Reduce Tenure</button>
+      <button class="radio-pill" id="${prefix}-pp-str-emi" onclick="setPPStrategy('${prefix}','reduce-emi')">Reduce EMI</button>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+      <button class="btn btn-ghost" style="padding:8px 14px;font-size:0.78rem" onclick="hideAddPP('${prefix}')">Cancel</button>
+      <button class="btn btn-primary" style="padding:8px 14px;font-size:0.78rem" onclick="addPP('${type}','${prefix}')">Add</button>
+    </div>
+  </div>`;
+
+  // Amortization
+  html+=`<div class="yr-table-wrap"><button class="yr-toggle" onclick="toggleYr(this,'${prefix}-tb')"><span>Amortization Schedule</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div id="${prefix}-tb" class="yr-body closed"><table class="yr-table"><thead><tr><th>Year</th><th>Principal</th><th>Interest</th><th>EMI</th><th>Balance</th></tr></thead><tbody>${yearData.map(y=>`<tr><td>${y.year}</td><td>${fmt(y.principal)}</td><td style="color:var(--red)">${fmt(y.interest)}</td><td>${fmt(y.emi)}</td><td>${fmt(y.balance)}</td></tr>`).join('')}</tbody></table></div></div>`;
+
+  html+=`<div class="info-note"><span style="opacity:0.5">ⓘ</span><span>Part payments reduce outstanding principal. Choose "Reduce Tenure" to close loan early, or "Reduce EMI" to lower monthly burden.</span></div>`;
+
+  card.innerHTML=html;
+}
+
+function buildForm(type){
+  const d=data[type];
+  const prefix=type==='personal'?'pl':'hl';
+  return`<div class="fg"><label class="fl">Loan Amount (₹)</label><input class="fi" id="${prefix}-amt" type="number" inputmode="numeric" placeholder="e.g. ${type==='personal'?'500000':'5000000'}" value="${d.amount||''}" oninput="updateField('${type}','amount',this.value)"/></div>
+  <div class="form-row2"><div class="fg"><label class="fl">Interest Rate (% p.a.)</label><input class="fi" id="${prefix}-rate" type="number" step="0.1" placeholder="${type==='personal'?'12':'8.5'}" value="${d.rate||''}" oninput="updateField('${type}','rate',this.value)"/></div><div class="fg"><label class="fl">Tenure (months)</label><input class="fi" id="${prefix}-tenure" type="number" placeholder="${type==='personal'?'36':'240'}" value="${d.tenure||''}" oninput="updateField('${type}','tenure',this.value)"/></div></div>`;
+}
+
+function updateField(type,field,val){data[type][field]=Number(val)||0;save();renderLoan(type)}
+function showAddPP(type){const p=type==='personal'?'pl':'hl';document.getElementById(p+'-pp-form').style.display=''}
+function hideAddPP(prefix){document.getElementById(prefix+'-pp-form').style.display='none'}
+function setPPStrategy(prefix,strategy){
+  document.getElementById(prefix+'-pp-str-tenure').classList.toggle('active',strategy==='reduce-tenure');
+  document.getElementById(prefix+'-pp-str-emi').classList.toggle('active',strategy==='reduce-emi');
+  document.getElementById(prefix+'-pp-form').dataset.strategy=strategy;
+}
+function addPP(type,prefix){
+  const amt=Number(document.getElementById(prefix+'-pp-amt').value||0);
+  const month=Number(document.getElementById(prefix+'-pp-month').value||0);
+  const strategy=document.getElementById(prefix+'-pp-form').dataset?.strategy||'reduce-tenure';
+  if(!amt||!month)return;
+  data[type].partPayments.push({id:uid(),amount:amt,month,strategy});
+  save();renderLoan(type);
+}
+function removePP(type,id){data[type].partPayments=data[type].partPayments.filter(p=>p.id!==id);save();renderLoan(type)}
+
+// Init
+(function(){
+  load();
+  const t=localStorage.getItem('loan_theme'),tgl=document.getElementById('theme-toggle');
+  if(t){document.body.setAttribute('data-theme',t);if(tgl)tgl.checked=t==='dark'}
+  else if(matchMedia('(prefers-color-scheme:light)').matches){document.body.setAttribute('data-theme','light');if(tgl)tgl.checked=false}
+  else{if(tgl)tgl.checked=true}
+  const fs=localStorage.getItem('loan_fs');
+  if(fs){document.documentElement.style.fontSize=fs+'px';document.querySelectorAll('.size-btn').forEach(b=>b.classList.toggle('active',Number(b.dataset.size)===Number(fs)))}
+  renderLoan('personal');renderLoan('home');
+})();
+</script>
+</body>
+</html>
