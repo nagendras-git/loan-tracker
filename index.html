@@ -513,7 +513,7 @@ function renderResults(type){
   const ppSorted=[...d.partPayments].sort((a,b)=>a.month-b.month);
   const yearData=[];
   let yearP=0,yearI=0,newEmi=emi;
-  const ppBalanceMap={}; // id -> {balBefore, balAfter, actualAmt}
+  const ppBalanceMap={};
   for(let m=1;m<=tenure*2&&bal>0;m++){
     const intPart=bal*r,prinPart=Math.min(bal,newEmi-intPart);
     bal-=prinPart;totalPaid+=newEmi;totalInterest+=intPart;
@@ -532,20 +532,61 @@ function renderResults(type){
   const interestSaved=interestNopp-totalInterest,monthsSaved=tenure-months;
   const hasPP=d.partPayments.length>0;
 
+  // ── FIX 5: Current month calculation ──
+  let currentMonth=null,currentBal=null,currentMonthLabel='';
+  if(d.startDate){
+    const start=parseStartDate(d.startDate);
+    if(start){
+      const now=new Date();
+      const diff=(now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth());
+      currentMonth=Math.max(0,diff);
+      if(currentMonth>0&&currentMonth<=tenure){
+        currentBal=balanceAtMonth(type,currentMonth);
+        currentMonthLabel=monthLabel(d.startDate,currentMonth);
+      }
+    }
+  }
+
   let html=`<div class="card" style="margin-top:0">`;
 
-  // EMI Hero — full exact number
+  // EMI Hero
   html+=`<div class="result-card">
     <div class="result-label">Monthly EMI</div>
     <div class="result-val">${fmtFull(emi)}</div>
     <div class="result-sub">for ${tenure} months &nbsp;·&nbsp; ${(tenure/12).toFixed(1)} years</div>
   </div>`;
 
-  // Summary rows — compact fmt
+  // ── FIX 5: Current month indicator pill ──
+  if(currentMonth!==null&&currentMonth>0&&currentMonth<=tenure&&currentBal!==null){
+    const pctDone=Math.round((currentMonth/tenure)*100);
+    const pctRemain=100-pctDone;
+    html+=`<div style="margin-top:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
+        <div style="font-size:0.62rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px">Loan Progress</div>
+        <div style="font-size:0.68rem;font-weight:700;color:var(--text2)">Month ${currentMonth} of ${tenure} &nbsp;·&nbsp; ${pctDone}% done</div>
+      </div>
+      <div style="height:6px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-bottom:8px">
+        <div style="height:100%;width:${pctDone}%;background:var(--blue);border-radius:99px;transition:width 0.4s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:0.62rem;color:var(--text3);margin-bottom:1px">Outstanding now</div>
+          <div style="font-size:0.92rem;font-weight:800;color:var(--text1)">${fmt(currentBal)}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:0.62rem;color:var(--text3);margin-bottom:1px">${pctRemain}% remaining</div>
+          <div style="font-size:0.72rem;font-weight:600;color:var(--text3)">${tenure-currentMonth} months left</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Summary rows
   html+=`<div style="margin-top:8px">`;
   html+=`<div class="result-row"><span class="result-row-label">Total Payable</span><span class="result-row-val">${fmt(totalPaid)}</span></div>`;
   html+=`<div class="result-row"><span class="result-row-label">Total Interest</span><span class="result-row-val" style="color:var(--red)">${fmt(totalInterest)}</span></div>`;
-  if(hasPP)html+=`<div class="result-row"><span class="result-row-label">Interest without Part Payment</span><span class="result-row-val">${fmt(interestNopp)}</span></div>`;
+  // ── FIX 2: clearer label, shown only when part payments exist ──
+  if(hasPP)html+=`<div class="result-row"><span class="result-row-label" style="color:var(--text3)">Original Interest <span style="font-weight:400">(no prepayment)</span></span><span class="result-row-val" style="color:var(--text3)">${fmt(interestNopp)}</span></div>`;
   if(interestSaved>0)html+=`<div class="result-row"><span class="result-row-label">Interest Saved</span><span class="result-row-val" style="color:var(--green)">${fmt(interestSaved)}</span></div>`;
   if(monthsSaved>0)html+=`<div class="result-row"><span class="result-row-label">Closes Early By</span><span class="result-row-val" style="color:var(--green)">${monthsSaved} months</span></div>`;
   if(newEmi!==emi)html+=`<div class="result-row"><span class="result-row-label">Revised EMI</span><span class="result-row-val" style="color:var(--green)">${fmtFull(newEmi)}</span></div>`;
@@ -553,11 +594,10 @@ function renderResults(type){
   if(hasPP&&monthsSaved>0)html+=`<div class="result-row"><span class="result-row-label">Payoff In</span><span class="result-row-val" style="color:var(--green)">${months} months (${(months/12).toFixed(1)}y)</span></div>`;
   html+=`</div>`;
 
-  // Part Payments — collapsible
+  // Part Payments section
   const ppCount=d.partPayments.length;
   const maxPP=2;
   html+=`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border2)">`;
-  // Header row: title + count + chevron (always visible) | Add button
   html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0;cursor:pointer;user-select:none" onclick="togglePPSection('${prefix}')">
     <div style="display:flex;align-items:center;gap:8px">
       <div style="font-size:0.82rem;font-weight:700;color:var(--text1)">Part Payments <span style="font-size:0.68rem;font-weight:500;color:var(--text3)">(${ppCount}/${maxPP})</span></div>
@@ -567,11 +607,22 @@ function renderResults(type){
       ?`<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.72rem" onclick="event.stopPropagation();showAddPP('${type}')">Add</button>`
       :`<span style="font-size:0.68rem;color:var(--text3);padding:4px 8px">Max 2 reached</span>`}
   </div>`;
-  // Collapsible body
+
+  // ── FIX 3: PP impact summary banner ──
+  if(hasPP&&(interestSaved>0||monthsSaved>0)){
+    html+=`<div style="margin-top:8px;padding:9px 12px;background:var(--green-bg);border:1px solid rgba(34,197,94,0.2);border-radius:var(--r);display:flex;align-items:center;gap:10px">
+      <span style="font-size:1rem;flex-shrink:0">🎯</span>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--green);line-height:1.5">
+        ${interestSaved>0?`You save <strong>${fmt(interestSaved)}</strong> in interest`:''}${interestSaved>0&&monthsSaved>0?' and ':' '}${monthsSaved>0?`close <strong>${monthsSaved} months early</strong>`:''}
+      </div>
+    </div>`;
+  }
+
   html+=`<div id="${prefix}-pp-body" style="margin-top:8px">`;
   html+=`<div style="font-size:0.68rem;color:var(--text3);margin-bottom:8px;padding:6px 10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border2)">
     <span style="color:#fbbf24">ⓘ</span> Bank rule: allowed after 12 EMIs · max 25% of outstanding · 2 times per tenure
   </div>`;
+
   if(hasPP){
     html+=`<div class="pp-list">`;
     d.partPayments.sort((a,b)=>a.month-b.month).forEach(pp=>{
@@ -582,13 +633,19 @@ function renderResults(type){
       const maxAllowed=balBefore*0.25;
       const violates25=pp.amount>maxAllowed&&balBefore>0;
       const violates12=pp.month<=12;
+      const hasViolation=violates12||violates25;
+      // ── FIX 1: stronger violation border styling ──
       html+=`<div class="pp-item">
         <div class="pp-info">
           <div class="pp-amt">${fmt(pp.amount)} <span style="color:var(--text3);font-weight:500;font-size:0.82rem">at month ${pp.month}${calLabel?` <span style="color:var(--blue)">(${calLabel})</span>`:''}</span></div>
           <div class="pp-meta">${pp.strategy==='reduce-tenure'?'↓ Reduce tenure':'↓ Reduce EMI'}</div>
-          ${violates12?`<div style="font-size:0.65rem;color:var(--red);margin-top:4px">⚠ Must be after month 12</div>`:''}
-          ${violates25&&!violates12?`<div style="font-size:0.65rem;color:var(--red);margin-top:4px">⚠ Exceeds 25% limit (max ${fmt(maxAllowed)})</div>`:''}
-          ${outstandingAfter!==null?`<div class="pp-outstanding"><span class="pp-outstanding-label">Outstanding left</span><span class="pp-outstanding-val">${fmt(outstandingAfter)}</span></div>`:''}
+          ${violates12?`<div style="font-size:0.68rem;font-weight:600;color:var(--red);margin-top:5px;padding:4px 8px;background:var(--red-bg);border-radius:6px;display:inline-block">⚠ Must be after month 12</div>`:''}
+          ${violates25&&!violates12?`<div style="font-size:0.68rem;font-weight:600;color:var(--red);margin-top:5px;padding:4px 8px;background:var(--red-bg);border-radius:6px;display:inline-block">⚠ Exceeds 25% limit · max ${fmt(maxAllowed)}</div>`:''}
+          ${outstandingAfter!==null?`
+          <div class="pp-outstanding" style="margin-top:8px;padding-top:8px">
+            <span style="font-size:0.62rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px">Balance after prepayment</span>
+            <span style="font-size:0.92rem;font-weight:800;color:var(--text1);margin-left:8px">${fmt(outstandingAfter)}</span>
+          </div>`:''}
         </div>
         <div class="pp-actions" style="margin-top:2px">
           <button class="pp-edit" onclick="editPP('${type}','${pp.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
@@ -618,6 +675,7 @@ function renderResults(type){
 
   // Add PP form (outside collapse so it can slide in independently)
   html+=`<div id="${prefix}-pp-form" style="display:none;margin-top:10px;padding:12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r)">
+    <div id="${prefix}-pp-suggestion" style="display:none;margin-bottom:12px"></div>
     <div class="fg"><label class="fl">Part Payment Amount (₹)</label>
       <input class="fi" id="${prefix}-pp-amt" type="number" inputmode="numeric" placeholder="e.g. 100000" oninput="updatePPHint('${type}','${prefix}')"/>
       <div id="${prefix}-pp-amt-hint" style="font-size:0.65rem;margin-top:4px"></div>
@@ -678,7 +736,51 @@ function togglePPSection(prefix){
 function showAddPP(type){
   const p=type==='personal'?'pl':'hl';
   document.getElementById(p+'-pp-form').style.display='';
+
+  const d=data[type];
+  const P=Number(d.amount||0),annualRate=Number(d.rate||0)/100,tenure=Number(d.tenure||0);
+  if(!P||!annualRate||!tenure){updatePPHint(type,p);return;}
+
+  // Find earliest eligible month (>12, not already used)
+  const usedMonths=new Set((d.partPayments||[]).map(x=>x.month));
+  let sugMonth=13;
+  while(usedMonths.has(sugMonth)&&sugMonth<tenure)sugMonth++;
+
+  const bal=balanceAtMonth(type,sugMonth);
+  const sugAmt=Math.floor(bal*0.25);
+
+  // Pre-fill fields
+  const amtEl=document.getElementById(p+'-pp-amt');
+  const monthEl=document.getElementById(p+'-pp-month');
+  if(amtEl&&!amtEl.value) amtEl.value=sugAmt>0?sugAmt:'';
+  if(monthEl&&!monthEl.value) monthEl.value=sugMonth;
+
+  // Render suggestion chip
+  const sugBox=document.getElementById(p+'-pp-suggestion');
+  if(sugBox&&bal>0){
+    const calLbl=d.startDate?` · <span style="color:var(--blue)">${monthLabel(d.startDate,sugMonth)}</span>`:'';
+    sugBox.style.display='';
+    sugBox.innerHTML=`<div style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:10px 12px">
+      <div style="font-size:0.62rem;font-weight:700;color:var(--blue);letter-spacing:0.3px;margin-bottom:6px;text-transform:uppercase">Suggested Part Payment</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:0.88rem;font-weight:800;color:var(--text1)">${fmt(sugAmt)}</div>
+          <div style="font-size:0.65rem;color:var(--text3);margin-top:2px">25% of ₹${Math.round(bal).toLocaleString('en-IN')} outstanding${calLbl} · Month ${sugMonth}</div>
+        </div>
+        <button onclick="applyPPSuggestion('${p}','${type}',${sugAmt},${sugMonth})" style="font-size:0.7rem;font-weight:700;padding:5px 12px;border-radius:8px;border:1px solid rgba(59,130,246,0.35);background:rgba(59,130,246,0.12);color:var(--blue);cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0">Use this</button>
+      </div>
+    </div>`;
+  }
+
   updatePPHint(type,p);
+}
+
+function applyPPSuggestion(prefix,type,amt,month){
+  const amtEl=document.getElementById(prefix+'-pp-amt');
+  const monthEl=document.getElementById(prefix+'-pp-month');
+  if(amtEl)amtEl.value=amt;
+  if(monthEl)monthEl.value=month;
+  updatePPHint(type,prefix);
 }
 function updatePPHint(type,prefix){
   const monthEl=document.getElementById(prefix+'-pp-month');
