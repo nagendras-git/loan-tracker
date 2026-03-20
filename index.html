@@ -351,7 +351,8 @@ function balanceAtMonth(type,targetMonth){
   return Math.max(0,bal);
 }
 
-// Balance at targetMonth replaying ALL existing part payments (excluding editId if editing)
+// Balance AFTER targetMonth's EMI has been paid, including existing part payments
+// This matches the amortization loop's balBefore (balance after EMI, before PP)
 function balanceAtMonthWithPP(type,targetMonth,excludeId){
   const d=data[type];
   const P=Number(d.amount||0),annualRate=Number(d.rate||0)/100,tenure=Number(d.tenure||0);
@@ -362,14 +363,17 @@ function balanceAtMonthWithPP(type,targetMonth,excludeId){
     .filter(p=>p.id!==excludeId)
     .sort((a,b)=>a.month-b.month);
   let bal=P,curEmi=emi;
-  for(let m=1;m<targetMonth&&bal>0;m++){
+  for(let m=1;m<=targetMonth&&bal>0;m++){
     const intPart=bal*r,prinPart=Math.min(bal,curEmi-intPart);
     bal-=prinPart;
-    ppSorted.filter(p=>p.month===m).forEach(p=>{
-      const ppAmt=Math.min(p.amount,bal);
-      bal-=ppAmt;
-      if(p.strategy==='reduce-emi'&&bal>0){const rm=tenure-m;if(rm>0)curEmi=emiCalc(bal,annualRate,rm);}
-    });
+    // Apply any part payments at this month (but only before targetMonth — at targetMonth we want balance after EMI, before PP)
+    if(m<targetMonth){
+      ppSorted.filter(p=>p.month===m).forEach(p=>{
+        const ppAmt=Math.min(p.amount,bal);
+        bal-=ppAmt;
+        if(p.strategy==='reduce-emi'&&bal>0){const rm=tenure-m;if(rm>0)curEmi=emiCalc(bal,annualRate,rm);}
+      });
+    }
   }
   return Math.max(0,bal);
 }
@@ -556,19 +560,22 @@ function renderResults(type){
   const hasPP=d.partPayments.length>0;
 
   // Current month progress — based on First EMI Date
-  // If first EMI = Jun 2025, and today = Mar 2026: diff=9 months elapsed, EMIs 1-9 paid, currently in month 10
-  let currentMonth=null,currentBal=null;
+  // First EMI = 07 Jun 2025. EMI day = 7.
+  // Today = 20 Mar 2026: monthsElapsed=9, and today(20) >= emiDay(7), so 10th EMI is paid → emisPaid=10
+  let currentMonth=null,currentBal=null,emisPaid=0;
   if(d.startDate){
     const firstEMI=parseStartDate(d.startDate);
     if(firstEMI){
       const now=new Date();
+      const emiDay=firstEMI.getDate(); // e.g. 7
       const monthsElapsed=(now.getFullYear()-firstEMI.getFullYear())*12+(now.getMonth()-firstEMI.getMonth());
-      // monthsElapsed=0 means we're in the same month as EMI#1 (month 1 in progress)
-      // monthsElapsed=9 means EMI#1 through #9 paid, currently in month 10
-      const emisPaid=Math.max(0,monthsElapsed);
-      currentMonth=Math.min(emisPaid+1,tenure); // current month (1-based, in progress)
-      if(emisPaid>=0&&emisPaid<tenure){
-        currentBal=balanceAtMonthWithPP(type,currentMonth);
+      // If today's date >= EMI day, this month's EMI is already paid → add 1
+      const thisMthPaid=now.getDate()>=emiDay?1:0;
+      emisPaid=Math.min(Math.max(0,monthsElapsed+thisMthPaid),tenure);
+      currentMonth=Math.min(emisPaid+1,tenure);
+      if(emisPaid>0&&emisPaid<=tenure){
+        // balanceAtMonthWithPP(emisPaid) now runs through month emisPaid's EMI — correct outstanding
+        currentBal=balanceAtMonthWithPP(type,emisPaid);
       }
     }
   }
@@ -583,10 +590,10 @@ function renderResults(type){
   </div>`;
 
   // ── FIX 5: Current month indicator pill ──
-  if(currentMonth!==null&&currentMonth>=1&&currentMonth<=tenure&&currentBal!==null){
-    const emisPaid=currentMonth-1;
+  if(currentMonth!==null&&emisPaid>0&&currentBal!==null){
     const pctDone=Math.round((emisPaid/tenure)*100);
-    const nextDueLabel=d.startDate?monthLabel(d.startDate,currentMonth):'';
+    // Next EMI = first EMI date + emisPaid months (e.g. Jun 2025 + 10 = Apr 2026)
+    const nextDueLabel=d.startDate?monthLabel(d.startDate,emisPaid):'';
     html+=`<div style="margin-top:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
         <div style="font-size:0.62rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px">Loan Progress</div>
@@ -598,7 +605,7 @@ function renderResults(type){
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
           <div style="font-size:0.62rem;color:var(--text3);margin-bottom:1px">Outstanding now</div>
-          <div style="font-size:0.92rem;font-weight:800;color:var(--text1)">${fmt(currentBal)}</div>
+          <div style="font-size:0.92rem;font-weight:800;color:var(--text1)">${fmtFull(currentBal)}</div>
         </div>
         <div style="text-align:right">
           <div style="font-size:0.62rem;color:var(--text3);margin-bottom:1px">${nextDueLabel?'Next EMI due':'Remaining'}</div>
@@ -610,11 +617,10 @@ function renderResults(type){
 
   // Summary rows
   html+=`<div style="margin-top:8px">`;
-  html+=`<div class="result-row"><span class="result-row-label">Total Payable</span><span class="result-row-val">${fmt(totalPaid)}</span></div>`;
-  html+=`<div class="result-row"><span class="result-row-label">Total Interest</span><span class="result-row-val" style="color:var(--red)">${fmt(totalInterest)}</span></div>`;
-  // ── FIX 2: clearer label, shown only when part payments exist ──
-  if(hasPP)html+=`<div class="result-row"><span class="result-row-label" style="color:var(--text3)">Original Interest <span style="font-weight:400">(no prepayment)</span></span><span class="result-row-val" style="color:var(--text3)">${fmt(interestNopp)}</span></div>`;
-  if(interestSaved>0)html+=`<div class="result-row"><span class="result-row-label">Interest Saved</span><span class="result-row-val" style="color:var(--green)">${fmt(interestSaved)}</span></div>`;
+  html+=`<div class="result-row"><span class="result-row-label">Total Payable</span><span class="result-row-val">${fmtFull(totalPaid)}</span></div>`;
+  html+=`<div class="result-row"><span class="result-row-label">Total Interest</span><span class="result-row-val" style="color:var(--red)">${fmtFull(totalInterest)}</span></div>`;
+  if(hasPP)html+=`<div class="result-row"><span class="result-row-label" style="color:var(--text3)">Original Interest <span style="font-weight:400">(no prepayment)</span></span><span class="result-row-val" style="color:var(--text3)">${fmtFull(interestNopp)}</span></div>`;
+  if(interestSaved>0)html+=`<div class="result-row"><span class="result-row-label">Interest Saved</span><span class="result-row-val" style="color:var(--green)">${fmtFull(interestSaved)}</span></div>`;
   if(monthsSaved>0)html+=`<div class="result-row"><span class="result-row-label">Closes Early By</span><span class="result-row-val" style="color:var(--green)">${monthsSaved} months</span></div>`;
   if(newEmi!==emi)html+=`<div class="result-row"><span class="result-row-label">Revised EMI</span><span class="result-row-val" style="color:var(--green)">${fmtFull(newEmi)}</span></div>`;
   html+=`<div class="result-row"><span class="result-row-label">Loan Tenure</span><span class="result-row-val">${tenure} months (${(tenure/12).toFixed(1)}y)</span></div>`;
@@ -671,7 +677,7 @@ function renderResults(type){
           ${outstandingAfter!==null?`
           <div class="pp-outstanding" style="margin-top:8px;padding-top:8px">
             <span style="font-size:0.62rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px">Balance after prepayment</span>
-            <span style="font-size:0.92rem;font-weight:800;color:var(--text1);margin-left:8px">${fmt(outstandingAfter)}</span>
+            <span style="font-size:0.92rem;font-weight:800;color:var(--text1);margin-left:8px">${fmtFull(outstandingAfter)}</span>
           </div>`:''}
         </div>
         <div class="pp-actions" style="margin-top:2px">
@@ -768,30 +774,46 @@ function showAddPP(type){
   const P=Number(d.amount||0),annualRate=Number(d.rate||0)/100,tenure=Number(d.tenure||0);
   if(!P||!annualRate||!tenure){updatePPHint(type,p);return;}
 
-  // Find earliest eligible month (>12, not already used)
-  const usedMonths=new Set((d.partPayments||[]).map(x=>x.month));
-  let sugMonth=13;
-  while(usedMonths.has(sugMonth)&&sugMonth<tenure)sugMonth++;
+  // Always clear fields on open so suggestion is always fresh
+  const amtEl=document.getElementById(p+'-pp-amt');
+  const monthEl=document.getElementById(p+'-pp-month');
+  if(amtEl) amtEl.value='';
+  if(monthEl) monthEl.value='';
 
-  // Use balanceAtMonthWithPP so 2nd PP accounts for 1st PP already applied
+  const ppSorted=[...d.partPayments].sort((a,b)=>a.month-b.month);
+  const usedMonths=new Set(ppSorted.map(x=>x.month));
+
+  // Suggest month:
+  // - 1st PP → month 13 (earliest eligible)
+  // - 2nd PP → 12 months after the 1st PP (bank allows once per year), min month 13
+  let sugMonth;
+  if(ppSorted.length===0){
+    sugMonth=13;
+  } else {
+    const lastPPMonth=ppSorted[ppSorted.length-1].month;
+    sugMonth=Math.max(13, lastPPMonth+12);
+    // If that month is already used, advance by 1
+    while(usedMonths.has(sugMonth)&&sugMonth<tenure) sugMonth++;
+  }
+  sugMonth=Math.min(sugMonth,tenure-1); // can't be last month
+
+  // Balance AFTER sugMonth's EMI (accounting for any prior PPs)
   const bal=balanceAtMonthWithPP(type,sugMonth);
   const sugAmt=Math.floor(bal*0.25);
 
-  // Pre-fill fields only if empty
-  const amtEl=document.getElementById(p+'-pp-amt');
-  const monthEl=document.getElementById(p+'-pp-month');
-  if(amtEl&&!amtEl.value) amtEl.value=sugAmt>0?sugAmt:'';
-  if(monthEl&&!monthEl.value) monthEl.value=sugMonth;
+  // Pre-fill fields
+  if(amtEl) amtEl.value=sugAmt>0?sugAmt:'';
+  if(monthEl) monthEl.value=sugMonth;
 
   // Render suggestion chip
   const sugBox=document.getElementById(p+'-pp-suggestion');
   if(sugBox&&bal>0){
     const calLbl=d.startDate?` · <span style="color:var(--blue)">${monthLabel(d.startDate,sugMonth)}</span>`:'';
 
-    // For 2nd PP: show context about balance after 1st PP
-    const priorPP=d.partPayments.length>0?[...d.partPayments].sort((a,b)=>a.month-b.month)[0]:null;
+    // For 2nd PP: show context — balance after 1st PP effect + EMIs since
+    const priorPP=ppSorted.length>0?ppSorted[ppSorted.length-1]:null;
     const priorContext=priorPP
-      ?`<div style="font-size:0.65rem;color:var(--text3);margin-bottom:6px;padding:5px 8px;background:var(--surface2);border-radius:6px">Balance after 1st prepayment of ${fmt(priorPP.amount)}: <strong style="color:var(--text1)">${fmt(bal)}</strong></div>`
+      ?`<div style="font-size:0.65rem;color:var(--text3);margin-bottom:6px;padding:5px 8px;background:var(--surface2);border-radius:6px">After 1st prepayment + ${sugMonth-priorPP.month} more EMIs · balance: <strong style="color:var(--text1)">₹${Math.round(bal).toLocaleString('en-IN')}</strong></div>`
       :'';
 
     sugBox.style.display='';
@@ -800,12 +822,14 @@ function showAddPP(type){
       ${priorContext}
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
         <div>
-          <div style="font-size:0.88rem;font-weight:800;color:var(--text1)">${fmt(sugAmt)}</div>
-          <div style="font-size:0.65rem;color:var(--text3);margin-top:2px">25% of ${fmt(bal)} outstanding${calLbl} · Month ${sugMonth}</div>
+          <div style="font-size:0.92rem;font-weight:800;color:var(--text1)">₹${sugAmt.toLocaleString('en-IN')}</div>
+          <div style="font-size:0.65rem;color:var(--text3);margin-top:2px">25% of ₹${Math.round(bal).toLocaleString('en-IN')} (after EMI ${sugMonth})${calLbl}</div>
         </div>
-        <button onclick="applyPPSuggestion('${p}','${type}',${sugAmt},${sugMonth})" style="font-size:0.7rem;font-weight:700;padding:5px 12px;border-radius:8px;border:1px solid rgba(59,130,246,0.35);background:rgba(59,130,246,0.12);color:var(--blue);cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0">Use this</button>
+        <button id="${p}-pp-use-btn" onclick="applyPPSuggestion('${p}','${type}',${sugAmt},${sugMonth})" style="font-size:0.7rem;font-weight:700;padding:5px 12px;border-radius:8px;border:1px solid rgba(59,130,246,0.35);background:rgba(59,130,246,0.12);color:var(--blue);cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;display:none">Use this</button>
       </div>
     </div>`;
+    sugBox.dataset.sugAmt=sugAmt;
+    sugBox.dataset.sugMonth=sugMonth;
   }
 
   updatePPHint(type,p);
@@ -817,6 +841,17 @@ function applyPPSuggestion(prefix,type,amt,month){
   if(amtEl)amtEl.value=amt;
   if(monthEl)monthEl.value=month;
   updatePPHint(type,prefix);
+}
+function _syncUseThisBtn(prefix){
+  const sugBox=document.getElementById(prefix+'-pp-suggestion');
+  const btn=document.getElementById(prefix+'-pp-use-btn');
+  if(!sugBox||!btn)return;
+  const sugAmt=Number(sugBox.dataset.sugAmt||0);
+  const sugMonth=Number(sugBox.dataset.sugMonth||0);
+  const curAmt=Number(document.getElementById(prefix+'-pp-amt')?.value||0);
+  const curMonth=Number(document.getElementById(prefix+'-pp-month')?.value||0);
+  // Show "Use this" only when user has changed the fields away from the suggestion
+  btn.style.display=(curAmt!==sugAmt||curMonth!==sugMonth)?'':'none';
 }
 function updatePPHint(type,prefix){
   const monthEl=document.getElementById(prefix+'-pp-month');
@@ -853,6 +888,7 @@ function updatePPHint(type,prefix){
   } else {
     amtHint.textContent='';
   }
+  _syncUseThisBtn(prefix);
 }
 function hideAddPP(prefix){document.getElementById(prefix+'-pp-form').style.display='none'}
 function setPPStrategy(prefix,strategy){
