@@ -351,6 +351,29 @@ function balanceAtMonth(type,targetMonth){
   return Math.max(0,bal);
 }
 
+// Balance at targetMonth replaying ALL existing part payments (excluding editId if editing)
+function balanceAtMonthWithPP(type,targetMonth,excludeId){
+  const d=data[type];
+  const P=Number(d.amount||0),annualRate=Number(d.rate||0)/100,tenure=Number(d.tenure||0);
+  if(!P||!annualRate||!tenure)return 0;
+  const r=annualRate/12;
+  const emi=emiCalc(P,annualRate,tenure);
+  const ppSorted=[...d.partPayments]
+    .filter(p=>p.id!==excludeId)
+    .sort((a,b)=>a.month-b.month);
+  let bal=P,curEmi=emi;
+  for(let m=1;m<targetMonth&&bal>0;m++){
+    const intPart=bal*r,prinPart=Math.min(bal,curEmi-intPart);
+    bal-=prinPart;
+    ppSorted.filter(p=>p.month===m).forEach(p=>{
+      const ppAmt=Math.min(p.amount,bal);
+      bal-=ppAmt;
+      if(p.strategy==='reduce-emi'&&bal>0){const rm=tenure-m;if(rm>0)curEmi=emiCalc(bal,annualRate,rm);}
+    });
+  }
+  return Math.max(0,bal);
+}
+
 function renderForm(type){
   const d=data[type];
   const prefix=type==='personal'?'pl':'hl';
@@ -630,7 +653,7 @@ function renderResults(type){
       const outstandingAfter=ppInfo?ppInfo.balAfter:null;
       const calLabel=monthLabel(d.startDate,pp.month);
       const balBefore=ppInfo?ppInfo.balBefore:0;
-      const maxAllowed=balBefore*0.25;
+      const maxAllowed=Math.floor(balBefore*0.25);
       const violates25=pp.amount>maxAllowed&&balBefore>0;
       const violates12=pp.month<=12;
       const hasViolation=violates12||violates25;
@@ -746,10 +769,11 @@ function showAddPP(type){
   let sugMonth=13;
   while(usedMonths.has(sugMonth)&&sugMonth<tenure)sugMonth++;
 
-  const bal=balanceAtMonth(type,sugMonth);
+  // Use balanceAtMonthWithPP so 2nd PP accounts for 1st PP already applied
+  const bal=balanceAtMonthWithPP(type,sugMonth);
   const sugAmt=Math.floor(bal*0.25);
 
-  // Pre-fill fields
+  // Pre-fill fields only if empty
   const amtEl=document.getElementById(p+'-pp-amt');
   const monthEl=document.getElementById(p+'-pp-month');
   if(amtEl&&!amtEl.value) amtEl.value=sugAmt>0?sugAmt:'';
@@ -759,13 +783,21 @@ function showAddPP(type){
   const sugBox=document.getElementById(p+'-pp-suggestion');
   if(sugBox&&bal>0){
     const calLbl=d.startDate?` · <span style="color:var(--blue)">${monthLabel(d.startDate,sugMonth)}</span>`:'';
+
+    // For 2nd PP: show context about balance after 1st PP
+    const priorPP=d.partPayments.length>0?[...d.partPayments].sort((a,b)=>a.month-b.month)[0]:null;
+    const priorContext=priorPP
+      ?`<div style="font-size:0.65rem;color:var(--text3);margin-bottom:6px;padding:5px 8px;background:var(--surface2);border-radius:6px">Balance after 1st prepayment of ${fmt(priorPP.amount)}: <strong style="color:var(--text1)">${fmt(bal)}</strong></div>`
+      :'';
+
     sugBox.style.display='';
     sugBox.innerHTML=`<div style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:10px 12px">
       <div style="font-size:0.62rem;font-weight:700;color:var(--blue);letter-spacing:0.3px;margin-bottom:6px;text-transform:uppercase">Suggested Part Payment</div>
+      ${priorContext}
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
         <div>
           <div style="font-size:0.88rem;font-weight:800;color:var(--text1)">${fmt(sugAmt)}</div>
-          <div style="font-size:0.65rem;color:var(--text3);margin-top:2px">25% of ₹${Math.round(bal).toLocaleString('en-IN')} outstanding${calLbl} · Month ${sugMonth}</div>
+          <div style="font-size:0.65rem;color:var(--text3);margin-top:2px">25% of ${fmt(bal)} outstanding${calLbl} · Month ${sugMonth}</div>
         </div>
         <button onclick="applyPPSuggestion('${p}','${type}',${sugAmt},${sugMonth})" style="font-size:0.7rem;font-weight:700;padding:5px 12px;border-radius:8px;border:1px solid rgba(59,130,246,0.35);background:rgba(59,130,246,0.12);color:var(--blue);cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0">Use this</button>
       </div>
@@ -803,8 +835,8 @@ function updatePPHint(type,prefix){
   }
   // Amount hint — show balance and max 25%
   if(month>12){
-    const bal=balanceAtMonth(type,month);
-    const maxAmt=bal*0.25;
+    const bal=balanceAtMonthWithPP(type,month);
+    const maxAmt=Math.floor(bal*0.25);
     if(bal>0){
       if(amt>maxAmt&&amt>0){
         amtHint.style.color='var(--red)';
@@ -831,8 +863,8 @@ function addPP(type,prefix){
   if(!amt||!month)return;
   if(month<=12){alert('Part payment must be after month 12 (after completing 12 EMIs).');return;}
   if(data[type].partPayments.length>=2){alert('Banks allow maximum 2 part payments during the entire loan tenure.');return;}
-  const bal=balanceAtMonth(type,month);
-  const maxAmt=bal*0.25;
+  const bal=balanceAtMonthWithPP(type,month);
+  const maxAmt=Math.floor(bal*0.25);
   if(bal>0&&amt>maxAmt){
     if(!confirm(`Amount exceeds 25% of outstanding (max ${fmt(maxAmt)}). Add anyway?`))return;
   }
