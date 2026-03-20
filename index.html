@@ -742,18 +742,52 @@ function renderResults(type){
           <div class="yr-hdr-cell">Interest</div>
           <div class="yr-hdr-cell">Balance</div>
         </div>
-        ${yearData.map(y=>`
-        <div class="yr-row">
-          <div class="yr-cell">${y.year}</div>
-          <div class="yr-cell">${fmt(y.principal)}</div>
-          <div class="yr-cell" style="color:var(--red)">${fmt(y.interest)}</div>
-          <div class="yr-cell">${fmt(y.balance)}</div>
-        </div>`).join('')}
+        ${(()=>{
+          let rows='';
+          yearData.forEach(y=>{
+            const yearStart=(y.year-1)*12+1;
+            const yearEnd=y.year*12;
+            const yearPPs=ppSorted.filter(p=>p.month>=yearStart&&p.month<=yearEnd);
+            const ppTag=yearPPs.length>0
+              ?`<span style="font-size:0.58rem;font-weight:700;color:var(--blue);background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle">PP</span>`
+              :'';
+            rows+=`<div class="yr-row">
+              <div class="yr-cell" style="display:flex;align-items:center">${y.year}${ppTag}</div>
+              <div class="yr-cell">${fmt(y.principal)}</div>
+              <div class="yr-cell" style="color:var(--red)">${fmt(y.interest)}</div>
+              <div class="yr-cell">${fmt(y.balance)}</div>
+            </div>`;
+          });
+          return rows;
+        })()}
       </div>
     </div>
   </div>`;
 
   html+=`<div class="info-note"><span style="opacity:0.5">ⓘ</span><span>Part payments reduce outstanding principal. Choose "Reduce Tenure" to close loan early, or "Reduce EMI" to lower monthly burden.</span></div>`;
+
+  if(hasPP){
+    const ppSummaryRows=ppSorted.map((pp,i)=>{
+      const ppInfo=ppBalanceMap[pp.id];
+      if(!ppInfo)return'';
+      const calLbl=d.startDate?monthLabel(d.startDate,pp.month):'Month '+pp.month;
+      return`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;${i<ppSorted.length-1?'border-bottom:1px solid var(--border2)':''}">
+        <div>
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text1)">Prepayment ${i+1} &nbsp;<span style="font-weight:500;color:var(--blue);font-size:0.72rem">${calLbl}</span></div>
+          <div style="font-size:0.68rem;color:var(--text3);margin-top:2px">Before: ${fmtFull(ppInfo.balBefore)} &nbsp;→&nbsp; Paid: ${fmtFull(ppInfo.actualAmt)}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:12px">
+          <div style="font-size:0.68rem;color:var(--text3)">Balance after</div>
+          <div style="font-size:0.88rem;font-weight:800;color:var(--text1)">${fmtFull(ppInfo.balAfter)}</div>
+        </div>
+      </div>`;
+    }).join('');
+    html+=`<div style="margin-top:8px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r)">
+      <div style="font-size:0.62rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px">Prepayment Summary</div>
+      ${ppSummaryRows}
+    </div>`;
+  }
+
   html+=`</div>`;
   rc.innerHTML=html;
 }
