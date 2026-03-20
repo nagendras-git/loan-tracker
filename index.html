@@ -392,7 +392,7 @@ function renderForm(type){
         <input class="fi" id="${prefix}-tenure" type="number" inputmode="numeric" placeholder="${type==='personal'?'36':'240'}" value="${d.tenure||''}" oninput="onField('${type}','tenure',this)"/>
       </div>
     </div>
-    <div class="fg" style="margin-bottom:0"><label class="fl">Loan Disbursement Date <span style="font-weight:400;color:var(--text3)">(optional)</span></label>
+    <div class="fg" style="margin-bottom:0"><label class="fl">First EMI Date <span style="font-weight:400;color:var(--text3)">(optional · for progress tracking)</span></label>
       <div class="cal-wrap" id="${prefix}-cal-wrap">
         <div class="cal-display ${d.startDate?'':'empty'}" id="${prefix}-cal-display" onclick="toggleCal('${prefix}')">
           <span>${d.startDate?formatCalLabel(d.startDate):'Select date'}</span>
@@ -555,17 +555,20 @@ function renderResults(type){
   const interestSaved=interestNopp-totalInterest,monthsSaved=tenure-months;
   const hasPP=d.partPayments.length>0;
 
-  // ── FIX 5: Current month calculation ──
-  let currentMonth=null,currentBal=null,currentMonthLabel='';
+  // Current month progress — based on First EMI Date
+  // If first EMI = Jun 2025, and today = Mar 2026: diff=9 months elapsed, EMIs 1-9 paid, currently in month 10
+  let currentMonth=null,currentBal=null;
   if(d.startDate){
-    const start=parseStartDate(d.startDate);
-    if(start){
+    const firstEMI=parseStartDate(d.startDate);
+    if(firstEMI){
       const now=new Date();
-      const diff=(now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth());
-      currentMonth=Math.max(0,diff);
-      if(currentMonth>0&&currentMonth<=tenure){
-        currentBal=balanceAtMonth(type,currentMonth);
-        currentMonthLabel=monthLabel(d.startDate,currentMonth);
+      const monthsElapsed=(now.getFullYear()-firstEMI.getFullYear())*12+(now.getMonth()-firstEMI.getMonth());
+      // monthsElapsed=0 means we're in the same month as EMI#1 (month 1 in progress)
+      // monthsElapsed=9 means EMI#1 through #9 paid, currently in month 10
+      const emisPaid=Math.max(0,monthsElapsed);
+      currentMonth=Math.min(emisPaid+1,tenure); // current month (1-based, in progress)
+      if(emisPaid>=0&&emisPaid<tenure){
+        currentBal=balanceAtMonthWithPP(type,currentMonth);
       }
     }
   }
@@ -580,16 +583,17 @@ function renderResults(type){
   </div>`;
 
   // ── FIX 5: Current month indicator pill ──
-  if(currentMonth!==null&&currentMonth>0&&currentMonth<=tenure&&currentBal!==null){
-    const pctDone=Math.round((currentMonth/tenure)*100);
-    const pctRemain=100-pctDone;
+  if(currentMonth!==null&&currentMonth>=1&&currentMonth<=tenure&&currentBal!==null){
+    const emisPaid=currentMonth-1;
+    const pctDone=Math.round((emisPaid/tenure)*100);
+    const nextDueLabel=d.startDate?monthLabel(d.startDate,currentMonth):'';
     html+=`<div style="margin-top:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
         <div style="font-size:0.62rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px">Loan Progress</div>
-        <div style="font-size:0.68rem;font-weight:700;color:var(--text2)">Month ${currentMonth} of ${tenure} &nbsp;·&nbsp; ${pctDone}% done</div>
+        <div style="font-size:0.68rem;font-weight:700;color:var(--text2)">${emisPaid} of ${tenure} EMIs paid &nbsp;·&nbsp; ${pctDone}% done</div>
       </div>
       <div style="height:6px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-bottom:8px">
-        <div style="height:100%;width:${pctDone}%;background:var(--blue);border-radius:99px;transition:width 0.4s"></div>
+        <div style="height:100%;width:${pctDone}%;background:var(--blue);border-radius:99px"></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
@@ -597,8 +601,8 @@ function renderResults(type){
           <div style="font-size:0.92rem;font-weight:800;color:var(--text1)">${fmt(currentBal)}</div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:0.62rem;color:var(--text3);margin-bottom:1px">${pctRemain}% remaining</div>
-          <div style="font-size:0.72rem;font-weight:600;color:var(--text3)">${tenure-currentMonth} months left</div>
+          <div style="font-size:0.62rem;color:var(--text3);margin-bottom:1px">${nextDueLabel?'Next EMI due':'Remaining'}</div>
+          <div style="font-size:0.72rem;font-weight:700;color:var(--blue)">${nextDueLabel||((tenure-emisPaid)+' months left')}</div>
         </div>
       </div>
     </div>`;
