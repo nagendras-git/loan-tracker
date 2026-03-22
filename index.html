@@ -629,16 +629,13 @@ function renderResults(type){
 
   // Part Payments section
   const ppCount=d.partPayments.length;
-  const maxPP=2;
   html+=`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border2)">`;
   html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0;cursor:pointer;user-select:none" onclick="togglePPSection('${prefix}')">
     <div style="display:flex;align-items:center;gap:8px">
-      <div style="font-size:0.82rem;font-weight:700;color:var(--text1)">Part Payments <span style="font-size:0.68rem;font-weight:500;color:var(--text3)">(${ppCount}/${maxPP})</span></div>
+      <div style="font-size:0.82rem;font-weight:700;color:var(--text1)">Part Payments <span style="font-size:0.68rem;font-weight:500;color:var(--text3)">(${ppCount})</span></div>
       <svg id="${prefix}-pp-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;color:var(--text3);transition:transform 0.25s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
-    ${ppCount<maxPP
-      ?`<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.72rem" onclick="event.stopPropagation();showAddPP('${type}')">Add</button>`
-      :`<span style="font-size:0.68rem;color:var(--text3);padding:4px 8px">Max 2 reached</span>`}
+    <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.72rem" onclick="event.stopPropagation();showAddPP('${type}')">Add</button>
   </div>`;
 
   // ── FIX 3: PP impact summary banner ──
@@ -653,7 +650,7 @@ function renderResults(type){
 
   html+=`<div id="${prefix}-pp-body" style="margin-top:8px">`;
   html+=`<div style="font-size:0.68rem;color:var(--text3);margin-bottom:8px;padding:6px 10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border2)">
-    <span style="color:#fbbf24">ⓘ</span> Bank rule: allowed after 12 EMIs · max 25% of outstanding · 2 times per tenure
+    <span style="color:#fbbf24">ⓘ</span> Typically allowed after 12 EMIs · check your loan agreement for 25% cap and frequency rules
   </div>`;
 
   if(hasPP){
@@ -819,7 +816,7 @@ function showAddPP(type){
 
   // Suggest month:
   // - 1st PP → month 13 (earliest eligible)
-  // - 2nd PP → 12 months after the 1st PP (bank allows once per year), min month 13
+  // - Subsequent PPs → 12 months after last PP (typical bank annual frequency)
   let sugMonth;
   if(ppSorted.length===0){
     sugMonth=13;
@@ -847,7 +844,7 @@ function showAddPP(type){
     // For 2nd PP: show context — balance after 1st PP effect + EMIs since
     const priorPP=ppSorted.length>0?ppSorted[ppSorted.length-1]:null;
     const priorContext=priorPP
-      ?`<div style="font-size:0.65rem;color:var(--text3);margin-bottom:6px;padding:5px 8px;background:var(--surface2);border-radius:6px">After 1st prepayment + ${sugMonth-priorPP.month} more EMIs · balance: <strong style="color:var(--text1)">₹${Math.round(bal).toLocaleString('en-IN')}</strong></div>`
+      ?`<div style="font-size:0.65rem;color:var(--text3);margin-bottom:6px;padding:5px 8px;background:var(--surface2);border-radius:6px">After previous prepayment + ${sugMonth-priorPP.month} more EMIs · balance: <strong style="color:var(--text1)">₹${Math.round(bal).toLocaleString('en-IN')}</strong></div>`
       :'';
 
     sugBox.style.display='';
@@ -936,7 +933,6 @@ function addPP(type,prefix){
   const strategy=document.getElementById(prefix+'-pp-form').dataset?.strategy||'reduce-tenure';
   if(!amt||!month)return;
   if(month<=12){alert('Part payment must be after month 12 (after completing 12 EMIs).');return;}
-  if(data[type].partPayments.length>=2){alert('Banks allow maximum 2 part payments during the entire loan tenure.');return;}
   const bal=balanceAtMonthWithPP(type,month);
   const maxAmt=Math.floor(bal*0.25);
   if(bal>0&&amt>maxAmt){
